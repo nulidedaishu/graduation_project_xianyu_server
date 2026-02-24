@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="xyz.yaungyue.secondhand.mapper.ChatMessageMapper">
+
+    <resultMap id="BaseResultMap" type="xyz.yaungyue.secondhand.model.entity.ChatMessage">
+            <id property="id" column="id" />
+            <result property="sender_id" column="sender_id" />
+            <result property="receiver_id" column="receiver_id" />
+            <result property="product_id" column="product_id" />
+            <result property="content" column="content" />
+            <result property="msg_type" column="msg_type" />
+            <result property="is_read" column="is_read" />
+            <result property="session_key" column="session_key" />
+            <result property="create_time" column="create_time" />
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        id,sender_id,receiver_id,product_id,content,msg_type,
+        is_read,session_key,create_time
+    </sql>
+</mapper>

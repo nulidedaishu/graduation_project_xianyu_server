@@ -1,0 +1,293 @@
+### 二手交易平台认证接口测试文件
+### 测试环境配置：使用 http-client.env.json 中的 baseUrl
+
+## 1. 用户注册接口测试
+
+### 1.1 正常注册测试 - 成功创建新用户
+POST {{baseUrl}}/api/auth/register
+Content-Type: application/json
+
+{
+  "username": "testuser2024",
+  "password": "123456",
+  "confirmPassword": "123456",
+  "nickname": "测试用户2024",
+  "phone": "13987654321"
+}
+
+### 1.2 注册失败 - 用户名已存在
+POST {{baseUrl}}/api/auth/register
+Content-Type: application/json
+
+{
+  "username": "admin",
+  "password": "123456",
+  "confirmPassword": "123456",
+  "nickname": "重复用户测试",
+  "phone": "13812345678"
+}
+
+### 1.3 注册失败 - 密码确认不匹配
+POST {{baseUrl}}/api/auth/register
+Content-Type: application/json
+
+{
+  "username": "testuser_wrongpwd",
+  "password": "123456",
+  "confirmPassword": "654321",
+  "nickname": "密码不匹配测试",
+  "phone": "13712345678"
+}
+
+### 1.4 注册失败 - 用户名格式不符合要求（包含特殊字符）
+POST {{baseUrl}}/api/auth/register
+Content-Type: application/json
+
+{
+  "username": "test-user-invalid",
+  "password": "123456",
+  "confirmPassword": "123456",
+  "nickname": "用户名格式错误",
+  "phone": "13612345678"
+}
+
+### 1.5 注册失败 - 用户名长度不足
+POST {{baseUrl}}/api/auth/register
+Content-Type: application/json
+
+{
+  "username": "ab",
+  "password": "123456",
+  "confirmPassword": "123456",
+  "nickname": "用户名太短",
+  "phone": "13512345678"
+}
+
+### 1.6 注册失败 - 手机号格式不正确
+POST {{baseUrl}}/api/auth/register
+Content-Type: application/json
+
+{
+  "username": "testuser_invalidphone",
+  "password": "123456",
+  "confirmPassword": "123456",
+  "nickname": "手机号格式错误",
+  "phone": "12345678901"
+}
+
+### 1.7 注册失败 - 必填字段为空
+POST {{baseUrl}}/api/auth/register
+Content-Type: application/json
+
+{
+  "username": "",
+  "password": "123456",
+  "confirmPassword": "123456",
+  "nickname": "缺少用户名",
+  "phone": "13412345678"
+}
+
+## 2. 用户登录接口测试
+
+### 2.1 正常登录测试 - 使用默认管理员账户
+POST {{baseUrl}}/api/auth/login
+Content-Type: application/json
+
+{
+  "username": "admin",
+  "password": "123456"
+}
+
+### 2.2 登录失败 - 用户不存在
+POST {{baseUrl}}/api/auth/login
+Content-Type: application/json
+
+{
+  "username": "nonexistent_user",
+  "password": "123456"
+}
+
+### 2.3 登录失败 - 密码错误
+POST {{baseUrl}}/api/auth/login
+Content-Type: application/json
+
+{
+  "username": "admin",
+  "password": "wrong_password"
+}
+
+### 2.4 登录失败 - 参数缺失（缺少密码）
+POST {{baseUrl}}/api/auth/login
+Content-Type: application/json
+
+{
+  "username": "admin"
+}
+
+### 2.5 登录失败 - 参数为空
+POST {{baseUrl}}/api/auth/login
+Content-Type: application/json
+
+{
+  "username": "",
+  "password": ""
+}
+
+### 3. 用户状态检查接口测试（未登录状态）
+
+### 3.1 检查登录状态（未登录）
+GET {{baseUrl}}/api/auth/check-login
+
+### 3.2 获取用户信息（未登录）
+GET {{baseUrl}}/api/auth/info
+
+## 4. 登录后功能测试
+
+### 4.1 用户登录获取token
+# @name user_login
+POST {{baseUrl}}/api/auth/login
+Content-Type: application/json
+
+{
+  "username": "admin",
+  "password": "123456"
+}
+
+### 4.2 提取登录token用于后续请求
+@user_token = {{user_login.response.body.$.data.token}}
+
+### 4.3 检查登录状态（已登录）
+GET {{baseUrl}}/api/auth/check-login
+Authorization: {{user_token}}
+
+### 4.4 获取用户信息（已登录）
+GET {{baseUrl}}/api/auth/info
+Authorization: {{user_token}}
+
+## 5. 用户登出测试
+
+### 5.1 用户登出
+POST {{baseUrl}}/api/auth/logout
+Authorization: {{user_token}}
+
+### 5.2 登出后检查登录状态
+GET {{baseUrl}}/api/auth/check-login
+
+### 5.3 登出后尝试获取用户信息
+GET {{baseUrl}}/api/auth/info
+Authorization: {{user_token}}
+
+## 6. 管理员登录接口测试
+
+### 6.1 管理员正常登录
+# @name admin_login
+POST {{baseUrl}}/api/auth/admin/login
+Content-Type: application/json
+
+{
+  "username": "admin",
+  "password": "123456"
+}
+
+### 6.2 提取管理员token
+@admin_token = {{admin_login.response.body.$.data.token}}
+
+### 6.3 管理员检查登录状态
+GET {{baseUrl}}/api/auth/admin/check-login
+Authorization: {{admin_token}}
+
+### 6.4 获取管理员信息
+GET {{baseUrl}}/api/auth/admin/info
+Authorization: {{admin_token}}
+
+## 7. 管理员登出测试
+
+### 7.1 管理员登出
+POST {{baseUrl}}/api/auth/admin/logout
+Authorization: {{admin_token}}
+
+### 7.2 管理员登出后检查状态
+GET {{baseUrl}}/api/auth/admin/check-login
+
+## 8. 并发登录测试
+
+### 8.1 同一用户多次登录（测试Sa-Token并发配置）
+# @name first_login
+POST {{baseUrl}}/api/auth/login
+Content-Type: application/json
+
+{
+  "username": "admin",
+  "password": "123456"
+}
+
+@first_token = {{first_login.response.body.$.data.token}}
+
+### 8.2 同一用户第二次登录
+# @name second_login
+POST {{baseUrl}}/api/auth/login
+Content-Type: application/json
+
+{
+  "username": "admin",
+  "password": "123456"
+}
+
+@second_token = {{second_login.response.body.$.data.token}}
+
+### 8.3 验证两个token都能正常使用
+GET {{baseUrl}}/api/auth/check-login
+Authorization: {{first_token}}
+
+GET {{baseUrl}}/api/auth/check-login
+Authorization: {{second_token}}
+
+## 9. Token有效性测试
+
+### 9.1 使用无效token访问受保护资源
+GET {{baseUrl}}/api/auth/info
+Authorization: invalid_token_123456
+
+### 9.2 使用空token访问受保护资源
+GET {{baseUrl}}/api/auth/info
+Authorization: 
+
+### 9.3 不带Authorization头访问受保护资源
+GET {{baseUrl}}/api/auth/info
+
+## 10. 注册后立即登录测试
+
+### 10.1 注册新用户
+# @name register_new_user
+POST {{baseUrl}}/api/auth/register
+Content-Type: application/json
+
+{
+  "username": "newuser_{{randomInt(1000,9999)}}",
+  "password": "password123",
+  "confirmPassword": "password123",
+  "nickname": "新注册用户",
+  "phone": "139{{randomInt(10000000,99999999)}}"
+}
+
+@register_username = {{register_new_user.response.body.$.data.username}}
+
+### 10.2 使用刚注册的用户登录
+# @name login_new_user
+POST {{baseUrl}}/api/auth/login
+Content-Type: application/json
+
+{
+  "username": "{{register_username}}",
+  "password": "password123"
+}
+
+@new_user_token = {{login_new_user.response.body.$.data.token}}
+
+### 10.3 验证新用户登录状态
+GET {{baseUrl}}/api/auth/check-login
+Authorization: {{new_user_token}}
+
+### 10.4 获取新用户信息
+GET {{baseUrl}}/api/auth/info
+Authorization: {{new_user_token}}

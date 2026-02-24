@@ -1,0 +1,18 @@
+package xyz.yaungyue.secondhand.mapper;
+
+import xyz.yaungyue.secondhand.model.entity.Cart;
+import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+
+/**
+* @author yaung
+* @description 针对表【bus_cart(购物车表)】的数据库操作Mapper
+* @createDate 2026-02-12 17:21:41
+* @Entity xyz.yaungyue.secondhand.entity.Cart
+*/
+public interface CartMapper extends BaseMapper<Cart> {
+
+}
+
+
+
+
