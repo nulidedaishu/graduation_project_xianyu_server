@@ -121,10 +121,9 @@ public class CategoryController {
     }
 
     /**
-     * 获取分类树形结构
+     * 获取分类树形结构（公开接口，无需登录）
      */
     @GetMapping("/tree")
-    @SaCheckLogin
     public ApiResponse<List<CategoryTreeVO>> getCategoryTree() {
         log.info("收到获取分类树形结构请求");
         

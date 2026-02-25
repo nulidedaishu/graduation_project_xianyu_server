@@ -5,8 +5,8 @@
 <mapper namespace="xyz.yaungyue.secondhand.mapper.AdminRoleMapper">
 
     <resultMap id="BaseResultMap" type="xyz.yaungyue.secondhand.model.entity.AdminRole">
-            <id property="admin_id" column="admin_id" />
-            <id property="role_id" column="role_id" />
+            <id property="adminId" column="admin_id" />
+            <id property="roleId" column="role_id" />
     </resultMap>
 
     <sql id="Base_Column_List">

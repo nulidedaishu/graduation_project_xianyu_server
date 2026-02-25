@@ -6,10 +6,10 @@
 
     <resultMap id="BaseResultMap" type="xyz.yaungyue.secondhand.model.entity.Cart">
             <id property="id" column="id" />
-            <result property="user_id" column="user_id" />
-            <result property="product_id" column="product_id" />
+            <result property="userId" column="user_id" />
+            <result property="productId" column="product_id" />
             <result property="quantity" column="quantity" />
-            <result property="create_time" column="create_time" />
+            <result property="createTime" column="create_time" />
     </resultMap>
 
     <sql id="Base_Column_List">

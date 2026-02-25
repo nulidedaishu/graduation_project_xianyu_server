@@ -6,8 +6,8 @@
 
     <resultMap id="BaseResultMap" type="xyz.yaungyue.secondhand.model.entity.Menu">
             <id property="id" column="id" />
-            <result property="parent_id" column="parent_id" />
-            <result property="menu_name" column="menu_name" />
+            <result property="parentId" column="parent_id" />
+            <result property="menuName" column="menu_name" />
             <result property="permission" column="permission" />
             <result property="path" column="path" />
             <result property="type" column="type" />

@@ -1,5 +1,6 @@
 package xyz.yaungyue.secondhand.service.impl;
 
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import lombok.RequiredArgsConstructor;
@@ -12,6 +13,7 @@ import xyz.yaungyue.secondhand.mapper.CategoryMapper;
 import xyz.yaungyue.secondhand.mapper.ProductMapper;
 import xyz.yaungyue.secondhand.model.dto.response.CategoryTreeVO;
 import xyz.yaungyue.secondhand.model.entity.Category;
+import xyz.yaungyue.secondhand.model.entity.Product;
 import xyz.yaungyue.secondhand.service.CategoryService;
 
 import java.time.LocalDateTime;
@@ -197,7 +199,10 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryMapper, Category>
 
     @Override
     public boolean isUsedByProduct(Long id) {
-        return productMapper.selectCountByCategoryId(id) > 0;
+        LambdaQueryWrapper<Product> wrapper = new LambdaQueryWrapper<>();
+        wrapper.eq(Product::getCategoryId, id)
+               .eq(Product::getStatus, 1);
+        return productMapper.selectCount(wrapper) > 0;
     }
 
     /**
@@ -210,7 +215,9 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryMapper, Category>
         return categories.stream()
                 .filter(category -> {
                     if (parentId == null) {
-                        return category.getParentId() == null;
+                        // 根节点：parentId 为 null 或 0
+                        Long catParentId = category.getParentId();
+                        return catParentId == null || catParentId == 0L;
                     } else {
                         return parentId.equals(category.getParentId());
                     }

@@ -6,13 +6,13 @@
 
     <resultMap id="BaseResultMap" type="xyz.yaungyue.secondhand.model.entity.Evaluate">
             <id property="id" column="id" />
-            <result property="order_id" column="order_id" />
-            <result property="from_user_id" column="from_user_id" />
-            <result property="to_user_id" column="to_user_id" />
+            <result property="orderId" column="order_id" />
+            <result property="fromUserId" column="from_user_id" />
+            <result property="toUserId" column="to_user_id" />
             <result property="score" column="score" />
             <result property="content" column="content" />
             <result property="type" column="type" />
-            <result property="create_time" column="create_time" />
+            <result property="createTime" column="create_time" />
     </resultMap>
 
     <sql id="Base_Column_List">

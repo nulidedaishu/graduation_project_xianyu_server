@@ -6,8 +6,8 @@
 
     <resultMap id="BaseResultMap" type="xyz.yaungyue.secondhand.model.entity.Role">
             <id property="id" column="id" />
-            <result property="role_name" column="role_name" />
-            <result property="role_code" column="role_code" />
+            <result property="roleName" column="role_name" />
+            <result property="roleCode" column="role_code" />
     </resultMap>
 
     <sql id="Base_Column_List">

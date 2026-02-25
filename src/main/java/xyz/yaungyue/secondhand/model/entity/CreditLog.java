@@ -17,38 +17,33 @@ public class CreditLog {
     /**
      * 
      */
-    @TableId(value = "id", type = IdType.AUTO)
+    @TableId(type = IdType.AUTO)
     private Long id;
 
     /**
      * 目标用户ID
      */
-    @TableField(value = "user_id")
-    private Long user_id;
+    private Long userId;
 
     /**
      * 关联订单ID
      */
-    @TableField(value = "order_id")
-    private Long order_id;
+    private Long orderId;
 
     /**
      * 变动分值(可正可负)
      */
-    @TableField(value = "change_value")
-    private Integer change_value;
+    private Integer changeValue;
 
     /**
      * 变动原因
      */
-    @TableField(value = "reason")
     private String reason;
 
     /**
      * 
      */
-    @TableField(value = "create_time")
-    private LocalDateTime create_time;
+    private LocalDateTime createTime;
 
     @Override
     public boolean equals(Object that) {
@@ -63,11 +58,11 @@ public class CreditLog {
         }
         CreditLog other = (CreditLog) that;
         return (this.getId() == null ? other.getId() == null : this.getId().equals(other.getId()))
-            && (this.getUser_id() == null ? other.getUser_id() == null : this.getUser_id().equals(other.getUser_id()))
-            && (this.getOrder_id() == null ? other.getOrder_id() == null : this.getOrder_id().equals(other.getOrder_id()))
-            && (this.getChange_value() == null ? other.getChange_value() == null : this.getChange_value().equals(other.getChange_value()))
+            && (this.getUserId() == null ? other.getUserId() == null : this.getUserId().equals(other.getUserId()))
+            && (this.getOrderId() == null ? other.getOrderId() == null : this.getOrderId().equals(other.getOrderId()))
+            && (this.getChangeValue() == null ? other.getChangeValue() == null : this.getChangeValue().equals(other.getChangeValue()))
             && (this.getReason() == null ? other.getReason() == null : this.getReason().equals(other.getReason()))
-            && (this.getCreate_time() == null ? other.getCreate_time() == null : this.getCreate_time().equals(other.getCreate_time()));
+            && (this.getCreateTime() == null ? other.getCreateTime() == null : this.getCreateTime().equals(other.getCreateTime()));
     }
 
     @Override
@@ -75,11 +70,11 @@ public class CreditLog {
         final int prime = 31;
         int result = 1;
         result = prime * result + ((getId() == null) ? 0 : getId().hashCode());
-        result = prime * result + ((getUser_id() == null) ? 0 : getUser_id().hashCode());
-        result = prime * result + ((getOrder_id() == null) ? 0 : getOrder_id().hashCode());
-        result = prime * result + ((getChange_value() == null) ? 0 : getChange_value().hashCode());
+        result = prime * result + ((getUserId() == null) ? 0 : getUserId().hashCode());
+        result = prime * result + ((getOrderId() == null) ? 0 : getOrderId().hashCode());
+        result = prime * result + ((getChangeValue() == null) ? 0 : getChangeValue().hashCode());
         result = prime * result + ((getReason() == null) ? 0 : getReason().hashCode());
-        result = prime * result + ((getCreate_time() == null) ? 0 : getCreate_time().hashCode());
+        result = prime * result + ((getCreateTime() == null) ? 0 : getCreateTime().hashCode());
         return result;
     }
 
@@ -90,11 +85,11 @@ public class CreditLog {
         sb.append(" [");
         sb.append("Hash = ").append(hashCode());
         sb.append(", id=").append(id);
-        sb.append(", user_id=").append(user_id);
-        sb.append(", order_id=").append(order_id);
-        sb.append(", change_value=").append(change_value);
+        sb.append(", userId=").append(userId);
+        sb.append(", orderId=").append(orderId);
+        sb.append(", changeValue=").append(changeValue);
         sb.append(", reason=").append(reason);
-        sb.append(", create_time=").append(create_time);
+        sb.append(", createTime=").append(createTime);
         sb.append("]");
         return sb.toString();
     }

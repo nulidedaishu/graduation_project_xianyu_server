@@ -18,74 +18,63 @@ public class Order {
     /**
      * 
      */
-    @TableId(value = "id", type = IdType.AUTO)
+    @TableId(type = IdType.AUTO)
     private Long id;
 
     /**
      * 订单编号(唯一)
      */
-    @TableField(value = "order_sn")
-    private String order_sn;
+    private String orderSn;
 
     /**
      * 买家ID
      */
-    @TableField(value = "user_id")
-    private Long user_id;
+    private Long userId;
 
     /**
      * 订单总额
      */
-    @TableField(value = "total_amount")
-    private BigDecimal total_amount;
+    private BigDecimal totalAmount;
 
     /**
      * 状态(0-待付款, 1-待发货, 2-待收货, 3-待评价, 4-交易完成, 5-已取消, 6-超时关闭)
      */
-    @TableField(value = "status")
     private Integer status;
 
     /**
      * 支付方式(1-支付宝, 2-微信, 3-模拟支付)
      */
-    @TableField(value = "pay_type")
-    private Integer pay_type;
+    private Integer payType;
 
     /**
      * 支付时间
      */
-    @TableField(value = "pay_time")
-    private LocalDateTime pay_time;
+    private LocalDateTime payTime;
 
     /**
      * 发货时间
      */
-    @TableField(value = "delivery_time")
-    private LocalDateTime delivery_time;
+    private LocalDateTime deliveryTime;
 
     /**
      * 收货时间
      */
-    @TableField(value = "receive_time")
-    private LocalDateTime receive_time;
+    private LocalDateTime receiveTime;
 
     /**
      * 支付截止时间(用于超时关闭)
      */
-    @TableField(value = "expire_time")
-    private LocalDateTime expire_time;
+    private LocalDateTime expireTime;
 
     /**
      * 收货地址快照(存储下单时的地址)
      */
-    @TableField(value = "address_snapshot")
-    private Object address_snapshot;
+    private Object addressSnapshot;
 
     /**
      * 
      */
-    @TableField(value = "create_time")
-    private LocalDateTime create_time;
+    private LocalDateTime createTime;
 
     @Override
     public boolean equals(Object that) {
@@ -100,17 +89,17 @@ public class Order {
         }
         Order other = (Order) that;
         return (this.getId() == null ? other.getId() == null : this.getId().equals(other.getId()))
-            && (this.getOrder_sn() == null ? other.getOrder_sn() == null : this.getOrder_sn().equals(other.getOrder_sn()))
-            && (this.getUser_id() == null ? other.getUser_id() == null : this.getUser_id().equals(other.getUser_id()))
-            && (this.getTotal_amount() == null ? other.getTotal_amount() == null : this.getTotal_amount().equals(other.getTotal_amount()))
+            && (this.getOrderSn() == null ? other.getOrderSn() == null : this.getOrderSn().equals(other.getOrderSn()))
+            && (this.getUserId() == null ? other.getUserId() == null : this.getUserId().equals(other.getUserId()))
+            && (this.getTotalAmount() == null ? other.getTotalAmount() == null : this.getTotalAmount().equals(other.getTotalAmount()))
             && (this.getStatus() == null ? other.getStatus() == null : this.getStatus().equals(other.getStatus()))
-            && (this.getPay_type() == null ? other.getPay_type() == null : this.getPay_type().equals(other.getPay_type()))
-            && (this.getPay_time() == null ? other.getPay_time() == null : this.getPay_time().equals(other.getPay_time()))
-            && (this.getDelivery_time() == null ? other.getDelivery_time() == null : this.getDelivery_time().equals(other.getDelivery_time()))
-            && (this.getReceive_time() == null ? other.getReceive_time() == null : this.getReceive_time().equals(other.getReceive_time()))
-            && (this.getExpire_time() == null ? other.getExpire_time() == null : this.getExpire_time().equals(other.getExpire_time()))
-            && (this.getAddress_snapshot() == null ? other.getAddress_snapshot() == null : this.getAddress_snapshot().equals(other.getAddress_snapshot()))
-            && (this.getCreate_time() == null ? other.getCreate_time() == null : this.getCreate_time().equals(other.getCreate_time()));
+            && (this.getPayType() == null ? other.getPayType() == null : this.getPayType().equals(other.getPayType()))
+            && (this.getPayTime() == null ? other.getPayTime() == null : this.getPayTime().equals(other.getPayTime()))
+            && (this.getDeliveryTime() == null ? other.getDeliveryTime() == null : this.getDeliveryTime().equals(other.getDeliveryTime()))
+            && (this.getReceiveTime() == null ? other.getReceiveTime() == null : this.getReceiveTime().equals(other.getReceiveTime()))
+            && (this.getExpireTime() == null ? other.getExpireTime() == null : this.getExpireTime().equals(other.getExpireTime()))
+            && (this.getAddressSnapshot() == null ? other.getAddressSnapshot() == null : this.getAddressSnapshot().equals(other.getAddressSnapshot()))
+            && (this.getCreateTime() == null ? other.getCreateTime() == null : this.getCreateTime().equals(other.getCreateTime()));
     }
 
     @Override
@@ -118,17 +107,17 @@ public class Order {
         final int prime = 31;
         int result = 1;
         result = prime * result + ((getId() == null) ? 0 : getId().hashCode());
-        result = prime * result + ((getOrder_sn() == null) ? 0 : getOrder_sn().hashCode());
-        result = prime * result + ((getUser_id() == null) ? 0 : getUser_id().hashCode());
-        result = prime * result + ((getTotal_amount() == null) ? 0 : getTotal_amount().hashCode());
+        result = prime * result + ((getOrderSn() == null) ? 0 : getOrderSn().hashCode());
+        result = prime * result + ((getUserId() == null) ? 0 : getUserId().hashCode());
+        result = prime * result + ((getTotalAmount() == null) ? 0 : getTotalAmount().hashCode());
         result = prime * result + ((getStatus() == null) ? 0 : getStatus().hashCode());
-        result = prime * result + ((getPay_type() == null) ? 0 : getPay_type().hashCode());
-        result = prime * result + ((getPay_time() == null) ? 0 : getPay_time().hashCode());
-        result = prime * result + ((getDelivery_time() == null) ? 0 : getDelivery_time().hashCode());
-        result = prime * result + ((getReceive_time() == null) ? 0 : getReceive_time().hashCode());
-        result = prime * result + ((getExpire_time() == null) ? 0 : getExpire_time().hashCode());
-        result = prime * result + ((getAddress_snapshot() == null) ? 0 : getAddress_snapshot().hashCode());
-        result = prime * result + ((getCreate_time() == null) ? 0 : getCreate_time().hashCode());
+        result = prime * result + ((getPayType() == null) ? 0 : getPayType().hashCode());
+        result = prime * result + ((getPayTime() == null) ? 0 : getPayTime().hashCode());
+        result = prime * result + ((getDeliveryTime() == null) ? 0 : getDeliveryTime().hashCode());
+        result = prime * result + ((getReceiveTime() == null) ? 0 : getReceiveTime().hashCode());
+        result = prime * result + ((getExpireTime() == null) ? 0 : getExpireTime().hashCode());
+        result = prime * result + ((getAddressSnapshot() == null) ? 0 : getAddressSnapshot().hashCode());
+        result = prime * result + ((getCreateTime() == null) ? 0 : getCreateTime().hashCode());
         return result;
     }
 
@@ -139,17 +128,17 @@ public class Order {
         sb.append(" [");
         sb.append("Hash = ").append(hashCode());
         sb.append(", id=").append(id);
-        sb.append(", order_sn=").append(order_sn);
-        sb.append(", user_id=").append(user_id);
-        sb.append(", total_amount=").append(total_amount);
+        sb.append(", orderSn=").append(orderSn);
+        sb.append(", userId=").append(userId);
+        sb.append(", totalAmount=").append(totalAmount);
         sb.append(", status=").append(status);
-        sb.append(", pay_type=").append(pay_type);
-        sb.append(", pay_time=").append(pay_time);
-        sb.append(", delivery_time=").append(delivery_time);
-        sb.append(", receive_time=").append(receive_time);
-        sb.append(", expire_time=").append(expire_time);
-        sb.append(", address_snapshot=").append(address_snapshot);
-        sb.append(", create_time=").append(create_time);
+        sb.append(", payType=").append(payType);
+        sb.append(", payTime=").append(payTime);
+        sb.append(", deliveryTime=").append(deliveryTime);
+        sb.append(", receiveTime=").append(receiveTime);
+        sb.append(", expireTime=").append(expireTime);
+        sb.append(", addressSnapshot=").append(addressSnapshot);
+        sb.append(", createTime=").append(createTime);
         sb.append("]");
         return sb.toString();
     }

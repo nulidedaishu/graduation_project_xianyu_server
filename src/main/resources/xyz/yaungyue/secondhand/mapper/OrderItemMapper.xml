@@ -6,10 +6,10 @@
 
     <resultMap id="BaseResultMap" type="xyz.yaungyue.secondhand.model.entity.OrderItem">
             <id property="id" column="id" />
-            <result property="order_id" column="order_id" />
-            <result property="product_id" column="product_id" />
-            <result property="product_name" column="product_name" />
-            <result property="product_image" column="product_image" />
+            <result property="orderId" column="order_id" />
+            <result property="productId" column="product_id" />
+            <result property="productName" column="product_name" />
+            <result property="productImage" column="product_image" />
             <result property="price" column="price" />
             <result property="quantity" column="quantity" />
     </resultMap>

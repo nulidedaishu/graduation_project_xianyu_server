@@ -17,56 +17,48 @@ public class ChatMessage {
     /**
      * 
      */
-    @TableId(value = "id", type = IdType.AUTO)
+    @TableId(type = IdType.AUTO)
     private Long id;
 
     /**
      * 发送者ID
      */
-    @TableField(value = "sender_id")
-    private Long sender_id;
+    private Long senderId;
 
     /**
      * 接收者ID
      */
-    @TableField(value = "receiver_id")
-    private Long receiver_id;
+    private Long receiverId;
 
     /**
      * 关联商品ID(方便从商品发起咨询)
      */
-    @TableField(value = "product_id")
-    private Long product_id;
+    private Long productId;
 
     /**
      * 消息内容
      */
-    @TableField(value = "content")
     private String content;
 
     /**
      * 消息类型(0-文字, 1-图片)
      */
-    @TableField(value = "msg_type")
-    private Integer msg_type;
+    private Integer msgType;
 
     /**
      * 是否已读(0-未读, 1-已读)
      */
-    @TableField(value = "is_read")
-    private Integer is_read;
+    private Integer isRead;
 
     /**
      * 会话标识(min_id_max_id)
      */
-    @TableField(value = "session_key")
-    private String session_key;
+    private String sessionKey;
 
     /**
      * 
      */
-    @TableField(value = "create_time")
-    private LocalDateTime create_time;
+    private LocalDateTime createTime;
 
     @Override
     public boolean equals(Object that) {
@@ -81,14 +73,14 @@ public class ChatMessage {
         }
         ChatMessage other = (ChatMessage) that;
         return (this.getId() == null ? other.getId() == null : this.getId().equals(other.getId()))
-            && (this.getSender_id() == null ? other.getSender_id() == null : this.getSender_id().equals(other.getSender_id()))
-            && (this.getReceiver_id() == null ? other.getReceiver_id() == null : this.getReceiver_id().equals(other.getReceiver_id()))
-            && (this.getProduct_id() == null ? other.getProduct_id() == null : this.getProduct_id().equals(other.getProduct_id()))
+            && (this.getSenderId() == null ? other.getSenderId() == null : this.getSenderId().equals(other.getSenderId()))
+            && (this.getReceiverId() == null ? other.getReceiverId() == null : this.getReceiverId().equals(other.getReceiverId()))
+            && (this.getProductId() == null ? other.getProductId() == null : this.getProductId().equals(other.getProductId()))
             && (this.getContent() == null ? other.getContent() == null : this.getContent().equals(other.getContent()))
-            && (this.getMsg_type() == null ? other.getMsg_type() == null : this.getMsg_type().equals(other.getMsg_type()))
-            && (this.getIs_read() == null ? other.getIs_read() == null : this.getIs_read().equals(other.getIs_read()))
-            && (this.getSession_key() == null ? other.getSession_key() == null : this.getSession_key().equals(other.getSession_key()))
-            && (this.getCreate_time() == null ? other.getCreate_time() == null : this.getCreate_time().equals(other.getCreate_time()));
+            && (this.getMsgType() == null ? other.getMsgType() == null : this.getMsgType().equals(other.getMsgType()))
+            && (this.getIsRead() == null ? other.getIsRead() == null : this.getIsRead().equals(other.getIsRead()))
+            && (this.getSessionKey() == null ? other.getSessionKey() == null : this.getSessionKey().equals(other.getSessionKey()))
+            && (this.getCreateTime() == null ? other.getCreateTime() == null : this.getCreateTime().equals(other.getCreateTime()));
     }
 
     @Override
@@ -96,14 +88,14 @@ public class ChatMessage {
         final int prime = 31;
         int result = 1;
         result = prime * result + ((getId() == null) ? 0 : getId().hashCode());
-        result = prime * result + ((getSender_id() == null) ? 0 : getSender_id().hashCode());
-        result = prime * result + ((getReceiver_id() == null) ? 0 : getReceiver_id().hashCode());
-        result = prime * result + ((getProduct_id() == null) ? 0 : getProduct_id().hashCode());
+        result = prime * result + ((getSenderId() == null) ? 0 : getSenderId().hashCode());
+        result = prime * result + ((getReceiverId() == null) ? 0 : getReceiverId().hashCode());
+        result = prime * result + ((getProductId() == null) ? 0 : getProductId().hashCode());
         result = prime * result + ((getContent() == null) ? 0 : getContent().hashCode());
-        result = prime * result + ((getMsg_type() == null) ? 0 : getMsg_type().hashCode());
-        result = prime * result + ((getIs_read() == null) ? 0 : getIs_read().hashCode());
-        result = prime * result + ((getSession_key() == null) ? 0 : getSession_key().hashCode());
-        result = prime * result + ((getCreate_time() == null) ? 0 : getCreate_time().hashCode());
+        result = prime * result + ((getMsgType() == null) ? 0 : getMsgType().hashCode());
+        result = prime * result + ((getIsRead() == null) ? 0 : getIsRead().hashCode());
+        result = prime * result + ((getSessionKey() == null) ? 0 : getSessionKey().hashCode());
+        result = prime * result + ((getCreateTime() == null) ? 0 : getCreateTime().hashCode());
         return result;
     }
 
@@ -114,14 +106,14 @@ public class ChatMessage {
         sb.append(" [");
         sb.append("Hash = ").append(hashCode());
         sb.append(", id=").append(id);
-        sb.append(", sender_id=").append(sender_id);
-        sb.append(", receiver_id=").append(receiver_id);
-        sb.append(", product_id=").append(product_id);
+        sb.append(", senderId=").append(senderId);
+        sb.append(", receiverId=").append(receiverId);
+        sb.append(", productId=").append(productId);
         sb.append(", content=").append(content);
-        sb.append(", msg_type=").append(msg_type);
-        sb.append(", is_read=").append(is_read);
-        sb.append(", session_key=").append(session_key);
-        sb.append(", create_time=").append(create_time);
+        sb.append(", msgType=").append(msgType);
+        sb.append(", isRead=").append(isRead);
+        sb.append(", sessionKey=").append(sessionKey);
+        sb.append(", createTime=").append(createTime);
         sb.append("]");
         return sb.toString();
     }

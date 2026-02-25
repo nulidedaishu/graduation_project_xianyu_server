@@ -6,8 +6,8 @@ import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 /**
 * @author yaung
 * @description 针对表【bus_evaluate(评价表)】的数据库操作Mapper
-* @createDate 2026-02-12 17:21:41
-* @Entity xyz.yaungyue.secondhand.entity.Evaluate
+* @createDate 2026-02-25 15:46:11
+* @Entity xyz.yaungyue.secondhand.model.entity.Evaluate
 */
 public interface EvaluateMapper extends BaseMapper<Evaluate> {
 

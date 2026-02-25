@@ -17,26 +17,23 @@ public class Favorite {
     /**
      * 
      */
-    @TableId(value = "id", type = IdType.AUTO)
+    @TableId(type = IdType.AUTO)
     private Long id;
 
     /**
      * 
      */
-    @TableField(value = "user_id")
-    private Long user_id;
+    private Long userId;
 
     /**
      * 
      */
-    @TableField(value = "product_id")
-    private Long product_id;
+    private Long productId;
 
     /**
      * 
      */
-    @TableField(value = "create_time")
-    private LocalDateTime create_time;
+    private LocalDateTime createTime;
 
     @Override
     public boolean equals(Object that) {
@@ -51,9 +48,9 @@ public class Favorite {
         }
         Favorite other = (Favorite) that;
         return (this.getId() == null ? other.getId() == null : this.getId().equals(other.getId()))
-            && (this.getUser_id() == null ? other.getUser_id() == null : this.getUser_id().equals(other.getUser_id()))
-            && (this.getProduct_id() == null ? other.getProduct_id() == null : this.getProduct_id().equals(other.getProduct_id()))
-            && (this.getCreate_time() == null ? other.getCreate_time() == null : this.getCreate_time().equals(other.getCreate_time()));
+            && (this.getUserId() == null ? other.getUserId() == null : this.getUserId().equals(other.getUserId()))
+            && (this.getProductId() == null ? other.getProductId() == null : this.getProductId().equals(other.getProductId()))
+            && (this.getCreateTime() == null ? other.getCreateTime() == null : this.getCreateTime().equals(other.getCreateTime()));
     }
 
     @Override
@@ -61,9 +58,9 @@ public class Favorite {
         final int prime = 31;
         int result = 1;
         result = prime * result + ((getId() == null) ? 0 : getId().hashCode());
-        result = prime * result + ((getUser_id() == null) ? 0 : getUser_id().hashCode());
-        result = prime * result + ((getProduct_id() == null) ? 0 : getProduct_id().hashCode());
-        result = prime * result + ((getCreate_time() == null) ? 0 : getCreate_time().hashCode());
+        result = prime * result + ((getUserId() == null) ? 0 : getUserId().hashCode());
+        result = prime * result + ((getProductId() == null) ? 0 : getProductId().hashCode());
+        result = prime * result + ((getCreateTime() == null) ? 0 : getCreateTime().hashCode());
         return result;
     }
 
@@ -74,9 +71,9 @@ public class Favorite {
         sb.append(" [");
         sb.append("Hash = ").append(hashCode());
         sb.append(", id=").append(id);
-        sb.append(", user_id=").append(user_id);
-        sb.append(", product_id=").append(product_id);
-        sb.append(", create_time=").append(create_time);
+        sb.append(", userId=").append(userId);
+        sb.append(", productId=").append(productId);
+        sb.append(", createTime=").append(createTime);
         sb.append("]");
         return sb.toString();
     }

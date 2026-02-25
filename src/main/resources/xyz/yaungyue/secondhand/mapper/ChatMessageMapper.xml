@@ -6,14 +6,14 @@
 
     <resultMap id="BaseResultMap" type="xyz.yaungyue.secondhand.model.entity.ChatMessage">
             <id property="id" column="id" />
-            <result property="sender_id" column="sender_id" />
-            <result property="receiver_id" column="receiver_id" />
-            <result property="product_id" column="product_id" />
+            <result property="senderId" column="sender_id" />
+            <result property="receiverId" column="receiver_id" />
+            <result property="productId" column="product_id" />
             <result property="content" column="content" />
-            <result property="msg_type" column="msg_type" />
-            <result property="is_read" column="is_read" />
-            <result property="session_key" column="session_key" />
-            <result property="create_time" column="create_time" />
+            <result property="msgType" column="msg_type" />
+            <result property="isRead" column="is_read" />
+            <result property="sessionKey" column="session_key" />
+            <result property="createTime" column="create_time" />
     </resultMap>
 
     <sql id="Base_Column_List">

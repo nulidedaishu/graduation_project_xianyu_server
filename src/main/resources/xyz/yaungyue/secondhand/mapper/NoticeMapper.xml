@@ -6,12 +6,12 @@
 
     <resultMap id="BaseResultMap" type="xyz.yaungyue.secondhand.model.entity.Notice">
             <id property="id" column="id" />
-            <result property="user_id" column="user_id" />
+            <result property="userId" column="user_id" />
             <result property="title" column="title" />
             <result property="content" column="content" />
             <result property="type" column="type" />
-            <result property="is_read" column="is_read" />
-            <result property="create_time" column="create_time" />
+            <result property="isRead" column="is_read" />
+            <result property="createTime" column="create_time" />
     </resultMap>
 
     <sql id="Base_Column_List">

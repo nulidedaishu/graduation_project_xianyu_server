@@ -17,43 +17,37 @@ public class Admin {
     /**
      * 主键ID
      */
-    @TableId(value = "id", type = IdType.AUTO)
+    @TableId(type = IdType.AUTO)
     private Long id;
 
     /**
      * 管理员账号
      */
-    @TableField(value = "username")
     private String username;
 
     /**
      * 密码
      */
-    @TableField(value = "password")
     private String password;
 
     /**
      * 管理员姓名
      */
-    @TableField(value = "real_name")
     private String realName;
 
     /**
      * 状态(1-正常, 0-禁用)
      */
-    @TableField(value = "status")
     private Integer status;
 
     /**
      * 创建时间
      */
-    @TableField(value = "create_time")
     private LocalDateTime createTime;
 
     /**
      * 更新时间
      */
-    @TableField(value = "update_time")
     private LocalDateTime updateTime;
 
     @Override

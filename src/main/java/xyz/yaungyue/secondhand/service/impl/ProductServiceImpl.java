@@ -115,6 +115,21 @@ public class ProductServiceImpl extends ServiceImpl<ProductMapper, Product> impl
     }
 
     /**
+     * 获取待审核商品列表（分页）
+     * @param page 页码
+     * @return 分页结果
+     */
+    public IPage<ProductVO> getPendingProducts(Integer page, Integer size) {
+        Page<Product> pageParam = new Page<>(page, size);
+        LambdaQueryWrapper<Product> wrapper = new LambdaQueryWrapper<>();
+        wrapper.eq(Product::getStatus, ProductStatus.PENDING)
+               .orderByDesc(Product::getCreateTime);
+
+        IPage<Product> productPage = this.page(pageParam, wrapper);
+        return productPage.convert(this::convertToVO);
+    }
+
+    /**
      * 根据ID查询商品详情
      * @param productId 商品ID
      * @return 商品VO
@@ -127,10 +142,11 @@ public class ProductServiceImpl extends ServiceImpl<ProductMapper, Product> impl
         return convertToVO(product);
     }
 
+//    private static final Integer DEFAULT_PAGE_SIZE = 20;
+
     /**
      * 查询上架的商品列表（分页）
      * @param page 页码
-     * @param size 每页大小
      * @return 分页结果
      */
     public IPage<ProductVO> getApprovedProducts(Integer page, Integer size) {
@@ -183,10 +199,9 @@ public class ProductServiceImpl extends ServiceImpl<ProductMapper, Product> impl
      * 根据分类查询商品
      * @param categoryId 分类ID
      * @param page 页码
-     * @param size 每页大小
      * @return 分页结果
      */
-    public IPage<ProductVO> getProductsByCategory(Long categoryId, Integer page, Integer size) {
+    public IPage<ProductVO> getProductsByCategory(Long categoryId, Integer page,Integer size) {
         Page<Product> pageParam = new Page<>(page, size);
         LambdaQueryWrapper<Product> wrapper = new LambdaQueryWrapper<>();
         wrapper.eq(Product::getCategoryId, categoryId)
@@ -198,19 +213,19 @@ public class ProductServiceImpl extends ServiceImpl<ProductMapper, Product> impl
     }
 
     /**
-     * 查询用户发布的商品
+     * 查询用户发布的商品（分页）
      * @param userId 用户ID
-     * @return 商品列表
+     * @param page 页码
+     * @return 分页结果
      */
-    public List<ProductVO> getProductsByUser(Long userId) {
+    public IPage<ProductVO> getProductsByUser(Long userId, Integer page, Integer size) {
+        Page<Product> pageParam = new Page<>(page, size);
         LambdaQueryWrapper<Product> wrapper = new LambdaQueryWrapper<>();
         wrapper.eq(Product::getUserId, userId)
                .orderByDesc(Product::getCreateTime);
 
-        List<Product> products = this.list(wrapper);
-        return products.stream()
-                .map(this::convertToVO)
-                .collect(Collectors.toList());
+        IPage<Product> productPage = this.page(pageParam, wrapper);
+        return productPage.convert(this::convertToVO);
     }
 
     /**
@@ -301,6 +316,23 @@ public class ProductServiceImpl extends ServiceImpl<ProductMapper, Product> impl
 
         product.setLockedStock(newLockedStock);
         return this.updateById(product);
+    }
+
+    /**
+     * 获取推荐商品（随机选取已上架商品）
+     * @param page 页码
+     * @return 分页结果
+     */
+    public IPage<ProductVO> getRecommendedProducts(Integer page, Integer size) {
+        Page<Product> pageParam = new Page<>(page, size);
+        LambdaQueryWrapper<Product> wrapper = new LambdaQueryWrapper<>();
+        wrapper.eq(Product::getStatus, ProductStatus.APPROVED);
+
+        // 使用MySQL的RAND()函数随机排序
+        wrapper.last("ORDER BY RAND()");
+
+        IPage<Product> productPage = this.page(pageParam, wrapper);
+        return productPage.convert(this::convertToVO);
     }
 
     /**

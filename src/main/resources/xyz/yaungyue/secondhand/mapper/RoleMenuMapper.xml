@@ -5,8 +5,8 @@
 <mapper namespace="xyz.yaungyue.secondhand.mapper.RoleMenuMapper">
 
     <resultMap id="BaseResultMap" type="xyz.yaungyue.secondhand.model.entity.RoleMenu">
-            <id property="role_id" column="role_id" />
-            <id property="menu_id" column="menu_id" />
+            <id property="roleId" column="role_id" />
+            <id property="menuId" column="menu_id" />
     </resultMap>
 
     <sql id="Base_Column_List">

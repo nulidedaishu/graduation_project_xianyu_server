@@ -6,15 +6,15 @@
 
     <resultMap id="BaseResultMap" type="xyz.yaungyue.secondhand.model.entity.Address">
             <id property="id" column="id" />
-            <result property="user_id" column="user_id" />
+            <result property="userId" column="user_id" />
             <result property="consignee" column="consignee" />
             <result property="phone" column="phone" />
             <result property="province" column="province" />
             <result property="city" column="city" />
             <result property="district" column="district" />
-            <result property="detail_address" column="detail_address" />
-            <result property="is_default" column="is_default" />
-            <result property="create_time" column="create_time" />
+            <result property="detailAddress" column="detail_address" />
+            <result property="isDefault" column="is_default" />
+            <result property="createTime" column="create_time" />
     </resultMap>
 
     <sql id="Base_Column_List">

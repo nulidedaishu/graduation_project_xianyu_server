@@ -10,12 +10,14 @@ public record ProductQueryRequest(
     Integer page, // 页码
     Integer size // 每页大小
 ) {
+    public static final Integer DEFAULT_PAGE_SIZE = 20;
+
     public ProductQueryRequest {
         if (page == null || page < 1) {
             page = 1;
         }
         if (size == null || size < 1) {
-            size = 10;
+            size = DEFAULT_PAGE_SIZE;
         }
     }
 }

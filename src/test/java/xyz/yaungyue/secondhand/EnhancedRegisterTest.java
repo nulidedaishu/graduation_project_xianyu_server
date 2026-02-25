@@ -68,10 +68,10 @@ class EnhancedRegisterTest {
         testUser.setPassword("$2a$10$encodedPassword");
         testUser.setNickname("测试用户");
         testUser.setPhone("13812345678");
-        testUser.setCredit_score(SystemConstants.DEFAULT_CREDIT_SCORE);
+        testUser.setCreditScore(SystemConstants.DEFAULT_CREDIT_SCORE);
         testUser.setStatus(SystemConstants.USER_STATUS_NORMAL);
-        testUser.setCreate_time(LocalDateTime.now());
-        testUser.setUpdate_time(LocalDateTime.now());
+        testUser.setCreateTime(LocalDateTime.now());
+        testUser.setUpdateTime(LocalDateTime.now());
     }
 
     @Test
@@ -96,7 +96,7 @@ class EnhancedRegisterTest {
         assertThat(registeredUser.getUsername()).isEqualTo("testuser123");
         assertThat(registeredUser.getNickname()).isEqualTo("测试用户");
         assertThat(registeredUser.getPhone()).isEqualTo("13812345678");
-        assertThat(registeredUser.getCredit_score()).isEqualTo(SystemConstants.DEFAULT_CREDIT_SCORE);
+        assertThat(registeredUser.getCreditScore()).isEqualTo(SystemConstants.DEFAULT_CREDIT_SCORE);
         assertThat(registeredUser.getStatus()).isEqualTo(SystemConstants.USER_STATUS_NORMAL);
         assertThat(registeredUser.getPassword()).isNull(); // 密码不应返回
 
@@ -111,8 +111,8 @@ class EnhancedRegisterTest {
         ArgumentCaptor<UserRole> userRoleCaptor = ArgumentCaptor.forClass(UserRole.class);
         verify(userRoleService).save(userRoleCaptor.capture());
         UserRole capturedUserRole = userRoleCaptor.getValue();
-        assertThat(capturedUserRole.getUser_id()).isEqualTo(1L);
-        assertThat(capturedUserRole.getRole_id()).isEqualTo(SystemConstants.ROLE_USER);
+        assertThat(capturedUserRole.getUserId()).isEqualTo(1L);
+        assertThat(capturedUserRole.getRoleId()).isEqualTo(SystemConstants.ROLE_USER);
     }
 
     @Test

@@ -23,7 +23,6 @@ import xyz.yaungyue.secondhand.service.ProductService;
 import xyz.yaungyue.secondhand.service.impl.ProductServiceImpl;
 import xyz.yaungyue.secondhand.util.SaTokenUtil;
 
-import java.util.List;
 
 /**
  * 商品管理控制器
@@ -65,11 +64,24 @@ public class ProductController {
      * 公开接口，无需登录
      */
     @GetMapping
-    @Operation(summary = "获取商品列表", description = "获取已上架的商品列表，支持分页")
+    @Operation(summary = "获取商品列表", description = "获取已上架的商品列表，支持分页，每页固定20条")
     public ApiResponse<IPage<ProductVO>> getProducts(
-            @Parameter(description = "页码", example = "1") @RequestParam(defaultValue = "1") Integer page,
-            @Parameter(description = "每页大小", example = "10") @RequestParam(defaultValue = "10") Integer size) {
+            @Parameter(description = "页码", example = "1") @RequestParam(name = "page", defaultValue = "1") Integer page,
+            @Parameter(description = "每页数量", example = "20") @RequestParam(name = "size", defaultValue = "20") Integer size) {
         IPage<ProductVO> products = productService.getApprovedProducts(page, size);
+        return ApiResponse.success(products);
+    }
+
+    /**
+     * 获取推荐商品
+     * 公开接口，无需登录
+     */
+    @GetMapping("/recommend")
+    @Operation(summary = "推荐商品", description = "随机获取已上架的推荐商品，每页固定20条")
+    public ApiResponse<IPage<ProductVO>> getRecommendedProducts(
+            @Parameter(description = "页码", example = "1") @RequestParam(name = "page", defaultValue = "1") Integer page,
+            @Parameter(description = "每页数量", example = "20") @RequestParam(name = "size", defaultValue = "20") Integer size) {
+        IPage<ProductVO> products = productService.getRecommendedProducts(page, size);
         return ApiResponse.success(products);
     }
 
@@ -101,11 +113,11 @@ public class ProductController {
      * 公开接口，无需登录
      */
     @GetMapping("/category/{categoryId}")
-    @Operation(summary = "按分类查询商品", description = "获取指定分类下的商品列表")
+    @Operation(summary = "按分类查询商品", description = "获取指定分类下的商品列表，每页固定20条")
     public ApiResponse<IPage<ProductVO>> getProductsByCategory(
             @Parameter(description = "分类ID", example = "1") @PathVariable Long categoryId,
-            @Parameter(description = "页码", example = "1") @RequestParam(defaultValue = "1") Integer page,
-            @Parameter(description = "每页大小", example = "10") @RequestParam(defaultValue = "10") Integer size) {
+            @Parameter(description = "页码", example = "1") @RequestParam(name = "page", defaultValue = "1") Integer page,
+            @Parameter(description = "每页数量", example = "20") @RequestParam(name = "size", defaultValue = "20") Integer size) {
         IPage<ProductVO> products = productService.getProductsByCategory(categoryId, page, size);
         return ApiResponse.success(products);
     }
@@ -116,10 +128,12 @@ public class ProductController {
      */
     @GetMapping("/my")
     @SaCheckLogin(type = "user")
-    @Operation(summary = "我的商品", description = "获取当前登录用户发布的所有商品")
-    public ApiResponse<List<ProductVO>> getMyProducts() {
+    @Operation(summary = "我的商品", description = "获取当前登录用户发布的商品列表，每页固定20条")
+    public ApiResponse<IPage<ProductVO>> getMyProducts(
+            @Parameter(description = "页码", example = "1") @RequestParam(name = "page", defaultValue = "1") Integer page,
+            @Parameter(description = "每页数量", example = "20") @RequestParam(name = "size", defaultValue = "20") Integer size) {
         Long userId = SaTokenUtil.getCurrentUserId();
-        List<ProductVO> products = productService.getProductsByUser(userId);
+        IPage<ProductVO> products = productService.getProductsByUser(userId, page, size);
         return ApiResponse.success(products);
     }
 
@@ -158,9 +172,11 @@ public class ProductController {
      */
     @GetMapping("/pending")
     @SaCheckRole(value = "admin", type = "admin")
-    @Operation(summary = "待审核商品", description = "管理员获取待审核的商品列表")
-    public ApiResponse<List<ProductVO>> getPendingProducts() {
-        List<ProductVO> products = productService.getProductsByStatus(ProductStatus.PENDING);
+    @Operation(summary = "待审核商品", description = "管理员获取待审核的商品列表，每页固定20条")
+    public ApiResponse<IPage<ProductVO>> getPendingProducts(
+            @Parameter(description = "页码", example = "1") @RequestParam(name = "page", defaultValue = "1") Integer page,
+            @Parameter(description = "每页数量", example = "20") @RequestParam(name = "size", defaultValue = "20") Integer size) {
+        IPage<ProductVO> products = productService.getPendingProducts(page, size);
         return ApiResponse.success(products);
     }
 

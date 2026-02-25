@@ -17,50 +17,43 @@ public class Evaluate {
     /**
      * 
      */
-    @TableId(value = "id", type = IdType.AUTO)
+    @TableId(type = IdType.AUTO)
     private Long id;
 
     /**
      * 关联订单
      */
-    @TableField(value = "order_id")
-    private Long order_id;
+    private Long orderId;
 
     /**
      * 评价发起人
      */
-    @TableField(value = "from_user_id")
-    private Long from_user_id;
+    private Long fromUserId;
 
     /**
      * 被评价人
      */
-    @TableField(value = "to_user_id")
-    private Long to_user_id;
+    private Long toUserId;
 
     /**
      * 评分(1-5)
      */
-    @TableField(value = "score")
     private Integer score;
 
     /**
      * 评价内容
      */
-    @TableField(value = "content")
     private String content;
 
     /**
      * 类型(1-买家评卖家, 2-卖家评买家)
      */
-    @TableField(value = "type")
     private Integer type;
 
     /**
      * 
      */
-    @TableField(value = "create_time")
-    private LocalDateTime create_time;
+    private LocalDateTime createTime;
 
     @Override
     public boolean equals(Object that) {
@@ -75,13 +68,13 @@ public class Evaluate {
         }
         Evaluate other = (Evaluate) that;
         return (this.getId() == null ? other.getId() == null : this.getId().equals(other.getId()))
-            && (this.getOrder_id() == null ? other.getOrder_id() == null : this.getOrder_id().equals(other.getOrder_id()))
-            && (this.getFrom_user_id() == null ? other.getFrom_user_id() == null : this.getFrom_user_id().equals(other.getFrom_user_id()))
-            && (this.getTo_user_id() == null ? other.getTo_user_id() == null : this.getTo_user_id().equals(other.getTo_user_id()))
+            && (this.getOrderId() == null ? other.getOrderId() == null : this.getOrderId().equals(other.getOrderId()))
+            && (this.getFromUserId() == null ? other.getFromUserId() == null : this.getFromUserId().equals(other.getFromUserId()))
+            && (this.getToUserId() == null ? other.getToUserId() == null : this.getToUserId().equals(other.getToUserId()))
             && (this.getScore() == null ? other.getScore() == null : this.getScore().equals(other.getScore()))
             && (this.getContent() == null ? other.getContent() == null : this.getContent().equals(other.getContent()))
             && (this.getType() == null ? other.getType() == null : this.getType().equals(other.getType()))
-            && (this.getCreate_time() == null ? other.getCreate_time() == null : this.getCreate_time().equals(other.getCreate_time()));
+            && (this.getCreateTime() == null ? other.getCreateTime() == null : this.getCreateTime().equals(other.getCreateTime()));
     }
 
     @Override
@@ -89,13 +82,13 @@ public class Evaluate {
         final int prime = 31;
         int result = 1;
         result = prime * result + ((getId() == null) ? 0 : getId().hashCode());
-        result = prime * result + ((getOrder_id() == null) ? 0 : getOrder_id().hashCode());
-        result = prime * result + ((getFrom_user_id() == null) ? 0 : getFrom_user_id().hashCode());
-        result = prime * result + ((getTo_user_id() == null) ? 0 : getTo_user_id().hashCode());
+        result = prime * result + ((getOrderId() == null) ? 0 : getOrderId().hashCode());
+        result = prime * result + ((getFromUserId() == null) ? 0 : getFromUserId().hashCode());
+        result = prime * result + ((getToUserId() == null) ? 0 : getToUserId().hashCode());
         result = prime * result + ((getScore() == null) ? 0 : getScore().hashCode());
         result = prime * result + ((getContent() == null) ? 0 : getContent().hashCode());
         result = prime * result + ((getType() == null) ? 0 : getType().hashCode());
-        result = prime * result + ((getCreate_time() == null) ? 0 : getCreate_time().hashCode());
+        result = prime * result + ((getCreateTime() == null) ? 0 : getCreateTime().hashCode());
         return result;
     }
 
@@ -106,13 +99,13 @@ public class Evaluate {
         sb.append(" [");
         sb.append("Hash = ").append(hashCode());
         sb.append(", id=").append(id);
-        sb.append(", order_id=").append(order_id);
-        sb.append(", from_user_id=").append(from_user_id);
-        sb.append(", to_user_id=").append(to_user_id);
+        sb.append(", orderId=").append(orderId);
+        sb.append(", fromUserId=").append(fromUserId);
+        sb.append(", toUserId=").append(toUserId);
         sb.append(", score=").append(score);
         sb.append(", content=").append(content);
         sb.append(", type=").append(type);
-        sb.append(", create_time=").append(create_time);
+        sb.append(", createTime=").append(createTime);
         sb.append("]");
         return sb.toString();
     }

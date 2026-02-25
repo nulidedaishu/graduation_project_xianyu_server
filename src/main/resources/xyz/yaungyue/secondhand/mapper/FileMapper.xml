@@ -6,14 +6,14 @@
 
     <resultMap id="BaseResultMap" type="xyz.yaungyue.secondhand.model.entity.File">
             <id property="id" column="id" />
-            <result property="file_name" column="file_name" />
-            <result property="file_url" column="file_url" />
-            <result property="file_size" column="file_size" />
-            <result property="oss_key" column="oss_key" />
-            <result property="file_type" column="file_type" />
-            <result property="biz_type" column="biz_type" />
-            <result property="biz_id" column="biz_id" />
-            <result property="create_time" column="create_time" />
+            <result property="fileName" column="file_name" />
+            <result property="fileUrl" column="file_url" />
+            <result property="fileSize" column="file_size" />
+            <result property="ossKey" column="oss_key" />
+            <result property="fileType" column="file_type" />
+            <result property="bizType" column="biz_type" />
+            <result property="bizId" column="biz_id" />
+            <result property="createTime" column="create_time" />
     </resultMap>
 
     <sql id="Base_Column_List">
