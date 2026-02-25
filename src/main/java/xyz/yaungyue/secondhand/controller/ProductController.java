@@ -17,6 +17,7 @@ import xyz.yaungyue.secondhand.exception.BusinessException;
 import xyz.yaungyue.secondhand.model.dto.request.ProductCreateRequest;
 import xyz.yaungyue.secondhand.model.dto.request.ProductQueryRequest;
 import xyz.yaungyue.secondhand.model.dto.request.ProductReviewRequest;
+import xyz.yaungyue.secondhand.model.dto.request.ProductUpdateRequest;
 import xyz.yaungyue.secondhand.model.dto.response.ApiResponse;
 import xyz.yaungyue.secondhand.model.dto.response.ProductVO;
 import xyz.yaungyue.secondhand.service.ProductService;
@@ -26,15 +27,15 @@ import xyz.yaungyue.secondhand.util.SaTokenUtil;
 
 /**
  * 商品管理控制器
- *
+ * <p>
  * 安全架构说明：
  * 1. Spring Security 负责认证（Authentication）- 验证用户是否登录
- *    - 在 SecurityConfig 中配置，公共接口无需登录，其他接口需要认证
- *
+ * - 在 SecurityConfig 中配置，公共接口无需登录，其他接口需要认证
+ * <p>
  * 2. Sa-Token 负责授权（Authorization）- 验证用户是否有权限执行操作
- *    - 使用 @SaCheckLogin 确保已登录
- *    - 使用 @SaCheckRole 检查角色
- *    - 使用 @SaCheckPermission 检查权限
+ * - 使用 @SaCheckLogin 确保已登录
+ * - 使用 @SaCheckRole 检查角色
+ * - 使用 @SaCheckPermission 检查权限
  */
 @Slf4j
 @RestController
@@ -43,7 +44,7 @@ import xyz.yaungyue.secondhand.util.SaTokenUtil;
 @Tag(name = "商品管理", description = "商品的发布、查询、审核等接口")
 public class ProductController {
 
-    private final ProductServiceImpl productService;
+    private final ProductService productService;
 
     /**
      * 发布商品
@@ -131,9 +132,11 @@ public class ProductController {
     @Operation(summary = "我的商品", description = "获取当前登录用户发布的商品列表，每页固定20条")
     public ApiResponse<IPage<ProductVO>> getMyProducts(
             @Parameter(description = "页码", example = "1") @RequestParam(name = "page", defaultValue = "1") Integer page,
-            @Parameter(description = "每页数量", example = "20") @RequestParam(name = "size", defaultValue = "20") Integer size) {
+            @Parameter(description = "每页数量", example = "20") @RequestParam(name = "size", defaultValue = "20") Integer size,
+            @Parameter(description = "商品状态(0-待审核,1-已上架,2-审核驳回,3-已下架,4-已售出,5-已删除)", example = "1")
+            @RequestParam(name = "status", required = false) Integer status) {
         Long userId = SaTokenUtil.getCurrentUserId();
-        IPage<ProductVO> products = productService.getProductsByUser(userId, page, size);
+        IPage<ProductVO> products = productService.getProductsByUser(userId, page, size, status);
         return ApiResponse.success(products);
     }
 
@@ -197,6 +200,43 @@ public class ProductController {
 
         Long adminId = SaTokenUtil.getCurrentUserId();
         ProductVO product = productService.reviewProduct(id, request, adminId);
+        return ApiResponse.success(product);
+    }
+
+    /**
+     * 删除商品
+     * 需要登录，且是商品所有者
+     * 支持软删除，将商品状态设置为已删除
+     */
+    @DeleteMapping("/{id}")
+    @SaCheckLogin(type = "user")
+    @Operation(summary = "删除商品", description = "删除自己发布的商品（仅支持待审核、审核驳回、已下架、已售出状态的商品）")
+    public ApiResponse<Void> deleteProduct(
+            @Parameter(description = "商品ID", example = "1") @PathVariable Long id) {
+        Long userId = SaTokenUtil.getCurrentUserId();
+        productService.deleteProduct(id, userId);
+        return ApiResponse.success();
+    }
+
+    /**
+     * 修改商品
+     * 需要登录，且是商品所有者
+     * 仅支持待审核、审核驳回、已下架状态的商品修改
+     */
+    @PutMapping("/{id}")
+    @SaCheckLogin(type = "user")
+    @Operation(summary = "修改商品", description = "修改自己发布的商品信息（仅支持待审核、审核驳回、已下架状态的商品）")
+    public ApiResponse<ProductVO> updateProduct(
+            @Parameter(description = "商品ID", example = "1") @PathVariable Long id,
+            @RequestBody @Valid ProductUpdateRequest request) {
+        // 验证路径参数和请求体中的商品ID一致
+        if (!id.equals(request.getId())) {
+            throw new BusinessException(400, "商品ID不一致");
+        }
+
+        Long userId = SaTokenUtil.getCurrentUserId();
+        log.info("用户修改商品，商品ID: {}, 用户ID: {}", id, userId);
+        ProductVO product = productService.updateProduct(request, userId);
         return ApiResponse.success(product);
     }
 }

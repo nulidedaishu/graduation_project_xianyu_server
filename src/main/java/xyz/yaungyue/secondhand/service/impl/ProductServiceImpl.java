@@ -15,6 +15,7 @@ import xyz.yaungyue.secondhand.mapper.ProductMapper;
 import xyz.yaungyue.secondhand.model.dto.request.ProductCreateRequest;
 import xyz.yaungyue.secondhand.model.dto.request.ProductQueryRequest;
 import xyz.yaungyue.secondhand.model.dto.request.ProductReviewRequest;
+import xyz.yaungyue.secondhand.model.dto.request.ProductUpdateRequest;
 import xyz.yaungyue.secondhand.model.dto.response.ProductVO;
 import xyz.yaungyue.secondhand.model.entity.Category;
 import xyz.yaungyue.secondhand.model.entity.Product;
@@ -106,7 +107,7 @@ public class ProductServiceImpl extends ServiceImpl<ProductMapper, Product> impl
     public List<ProductVO> getProductsByStatus(Integer status) {
         LambdaQueryWrapper<Product> wrapper = new LambdaQueryWrapper<>();
         wrapper.eq(Product::getStatus, status)
-               .orderByDesc(Product::getCreateTime);
+                .orderByDesc(Product::getCreateTime);
 
         List<Product> products = this.list(wrapper);
         return products.stream()
@@ -116,6 +117,7 @@ public class ProductServiceImpl extends ServiceImpl<ProductMapper, Product> impl
 
     /**
      * 获取待审核商品列表（分页）
+     *
      * @param page 页码
      * @return 分页结果
      */
@@ -123,7 +125,7 @@ public class ProductServiceImpl extends ServiceImpl<ProductMapper, Product> impl
         Page<Product> pageParam = new Page<>(page, size);
         LambdaQueryWrapper<Product> wrapper = new LambdaQueryWrapper<>();
         wrapper.eq(Product::getStatus, ProductStatus.PENDING)
-               .orderByDesc(Product::getCreateTime);
+                .orderByDesc(Product::getCreateTime);
 
         IPage<Product> productPage = this.page(pageParam, wrapper);
         return productPage.convert(this::convertToVO);
@@ -131,6 +133,7 @@ public class ProductServiceImpl extends ServiceImpl<ProductMapper, Product> impl
 
     /**
      * 根据ID查询商品详情
+     *
      * @param productId 商品ID
      * @return 商品VO
      */
@@ -142,10 +145,10 @@ public class ProductServiceImpl extends ServiceImpl<ProductMapper, Product> impl
         return convertToVO(product);
     }
 
-//    private static final Integer DEFAULT_PAGE_SIZE = 20;
 
     /**
      * 查询上架的商品列表（分页）
+     *
      * @param page 页码
      * @return 分页结果
      */
@@ -153,7 +156,7 @@ public class ProductServiceImpl extends ServiceImpl<ProductMapper, Product> impl
         Page<Product> pageParam = new Page<>(page, size);
         LambdaQueryWrapper<Product> wrapper = new LambdaQueryWrapper<>();
         wrapper.eq(Product::getStatus, ProductStatus.APPROVED)
-               .orderByDesc(Product::getCreateTime);
+                .orderByDesc(Product::getCreateTime);
 
         IPage<Product> productPage = this.page(pageParam, wrapper);
         return productPage.convert(this::convertToVO);
@@ -161,6 +164,7 @@ public class ProductServiceImpl extends ServiceImpl<ProductMapper, Product> impl
 
     /**
      * 条件搜索商品
+     *
      * @param request 查询条件
      * @return 分页结果
      */
@@ -184,8 +188,8 @@ public class ProductServiceImpl extends ServiceImpl<ProductMapper, Product> impl
         // 关键词搜索（标题或描述）
         if (StringUtils.hasText(request.keyword())) {
             wrapper.and(w -> w.like(Product::getTitle, request.keyword())
-                             .or()
-                             .like(Product::getDescription, request.keyword()));
+                    .or()
+                    .like(Product::getDescription, request.keyword()));
         }
 
         // 按创建时间倒序
@@ -197,16 +201,17 @@ public class ProductServiceImpl extends ServiceImpl<ProductMapper, Product> impl
 
     /**
      * 根据分类查询商品
+     *
      * @param categoryId 分类ID
-     * @param page 页码
+     * @param page       页码
      * @return 分页结果
      */
-    public IPage<ProductVO> getProductsByCategory(Long categoryId, Integer page,Integer size) {
+    public IPage<ProductVO> getProductsByCategory(Long categoryId, Integer page, Integer size) {
         Page<Product> pageParam = new Page<>(page, size);
         LambdaQueryWrapper<Product> wrapper = new LambdaQueryWrapper<>();
         wrapper.eq(Product::getCategoryId, categoryId)
-               .eq(Product::getStatus, ProductStatus.APPROVED)
-               .orderByDesc(Product::getCreateTime);
+                .eq(Product::getStatus, ProductStatus.APPROVED)
+                .orderByDesc(Product::getCreateTime);
 
         IPage<Product> productPage = this.page(pageParam, wrapper);
         return productPage.convert(this::convertToVO);
@@ -214,15 +219,28 @@ public class ProductServiceImpl extends ServiceImpl<ProductMapper, Product> impl
 
     /**
      * 查询用户发布的商品（分页）
+     *
      * @param userId 用户ID
-     * @param page 页码
+     * @param page   页码
+     * @param size   每页数量
+     * @param status 商品状态（可选）
      * @return 分页结果
      */
-    public IPage<ProductVO> getProductsByUser(Long userId, Integer page, Integer size) {
+    @Override
+    public IPage<ProductVO> getProductsByUser(Long userId, Integer page, Integer size, Integer status) {
         Page<Product> pageParam = new Page<>(page, size);
         LambdaQueryWrapper<Product> wrapper = new LambdaQueryWrapper<>();
-        wrapper.eq(Product::getUserId, userId)
-               .orderByDesc(Product::getCreateTime);
+        wrapper.eq(Product::getUserId, userId);
+
+        // 如果指定了状态，则按状态筛选
+        if (status != null) {
+            wrapper.eq(Product::getStatus, status);
+        } else {
+            // 默认不显示已删除的商品
+            wrapper.ne(Product::getStatus, ProductStatus.DELETED);
+        }
+
+        wrapper.orderByDesc(Product::getCreateTime);
 
         IPage<Product> productPage = this.page(pageParam, wrapper);
         return productPage.convert(this::convertToVO);
@@ -230,8 +248,9 @@ public class ProductServiceImpl extends ServiceImpl<ProductMapper, Product> impl
 
     /**
      * 下架商品（卖家操作）
+     *
      * @param productId 商品ID
-     * @param userId 用户ID
+     * @param userId    用户ID
      * @return 更新后的商品
      */
     @Transactional(rollbackFor = Exception.class)
@@ -259,8 +278,9 @@ public class ProductServiceImpl extends ServiceImpl<ProductMapper, Product> impl
 
     /**
      * 上架商品（卖家操作，重新上架已下架商品）
+     *
      * @param productId 商品ID
-     * @param userId 用户ID
+     * @param userId    用户ID
      * @return 更新后的商品
      */
     @Transactional(rollbackFor = Exception.class)
@@ -277,7 +297,7 @@ public class ProductServiceImpl extends ServiceImpl<ProductMapper, Product> impl
 
         // 只能重新上架已下架或被驳回的商品（需要重新审核）
         if (product.getStatus() == ProductStatus.OFFLINE ||
-            product.getStatus() == ProductStatus.REJECTED) {
+                product.getStatus() == ProductStatus.REJECTED) {
             product.setStatus(ProductStatus.PENDING); // 重新提交审核
             product.setAuditMsg(null);
         } else {
@@ -291,8 +311,9 @@ public class ProductServiceImpl extends ServiceImpl<ProductMapper, Product> impl
 
     /**
      * 更新商品库存（下单时锁定库存）
+     *
      * @param productId 商品ID
-     * @param quantity 数量（正数表示锁定，负数表示释放）
+     * @param quantity  数量（正数表示锁定，负数表示释放）
      * @return 是否成功
      */
     @Transactional(rollbackFor = Exception.class)
@@ -320,6 +341,7 @@ public class ProductServiceImpl extends ServiceImpl<ProductMapper, Product> impl
 
     /**
      * 获取推荐商品（随机选取已上架商品）
+     *
      * @param page 页码
      * @return 分页结果
      */
@@ -333,6 +355,110 @@ public class ProductServiceImpl extends ServiceImpl<ProductMapper, Product> impl
 
         IPage<Product> productPage = this.page(pageParam, wrapper);
         return productPage.convert(this::convertToVO);
+    }
+
+    /**
+     * 删除商品（软删除）
+     *
+     * @param productId 商品ID
+     * @param userId    用户ID
+     * @return 更新后的商品
+     */
+    @Transactional(rollbackFor = Exception.class)
+    public ProductVO deleteProduct(Long productId, Long userId) {
+        Product product = this.getById(productId);
+        if (product == null) {
+            throw new BusinessException(404, "商品不存在");
+        }
+
+        // 验证是否是商品所有者
+        if (!product.getUserId().equals(userId)) {
+            throw new BusinessException(403, "无权操作此商品");
+        }
+
+        // 检查商品状态是否允许删除
+        // 只有待审核、审核驳回、已下架、已售出状态的商品可以删除
+        if (product.getStatus() != ProductStatus.PENDING &&
+                product.getStatus() != ProductStatus.REJECTED &&
+                product.getStatus() != ProductStatus.OFFLINE &&
+                product.getStatus() != ProductStatus.SOLD) {
+            throw new BusinessException(400, "当前状态不允许删除商品");
+        }
+
+        // 软删除：将状态设置为已删除
+        product.setStatus(ProductStatus.DELETED);
+        boolean updated = this.updateById(product);
+
+        if (!updated) {
+            throw new BusinessException(500, "商品删除失败");
+        }
+
+        log.info("商品删除成功，商品ID: {}, 用户ID: {}", productId, userId);
+
+        return convertToVO(product);
+    }
+
+    /**
+     * 修改商品
+     *
+     * @param request 商品更新请求
+     * @param userId  用户ID
+     * @return 更新后的商品VO
+     */
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public ProductVO updateProduct(ProductUpdateRequest request, Long userId) {
+        // 1. 查询商品
+        Product product = this.getById(request.getId());
+        if (product == null) {
+            throw new BusinessException(404, "商品不存在");
+        }
+
+        // 2. 验证是否是商品所有者
+        if (!product.getUserId().equals(userId)) {
+            throw new BusinessException(403, "无权修改此商品");
+        }
+
+        // 3. 验证商品状态是否允许修改
+        // 只有待审核、审核驳回、已下架状态的商品可以修改
+        if (product.getStatus() != ProductStatus.PENDING &&
+                product.getStatus() != ProductStatus.APPROVED &&
+                product.getStatus() != ProductStatus.REJECTED &&
+                product.getStatus() != ProductStatus.OFFLINE) {
+            throw new BusinessException(400, "当前状态不允许修改商品，只有待审核、已上架、审核驳回或已下架的商品可以修改");
+        }
+
+        // 4. 验证分类是否存在
+        Category category = categoryService.getById(request.getCategoryId());
+        if (category == null) {
+            throw new BusinessException(400, "商品分类不存在");
+        }
+
+        // 5. 更新商品信息
+        product.setTitle(request.getName());
+        product.setDescription(request.getDescription());
+        product.setPrice(request.getPrice());
+        product.setCategoryId(request.getCategoryId());
+        product.setMainImage(request.getImageUrls());
+        product.setLocation(request.getContactInfo());
+
+        // 6. 如果商品是被驳回状态，修改后重置为待审核状态
+        if (product.getStatus() == ProductStatus.REJECTED) {
+            product.setStatus(ProductStatus.PENDING);
+            product.setAuditMsg(null);
+            log.info("商品被驳回后修改，重新提交审核，商品ID: {}", request.getId());
+        }
+
+        // 7. 保存商品
+        boolean updated = this.updateById(product);
+        if (!updated) {
+            throw new BusinessException(500, "商品修改失败");
+        }
+
+        log.info("商品修改成功，商品ID: {}, 用户ID: {}", request.getId(), userId);
+
+        // 8. 转换为VO返回
+        return convertToVO(product);
     }
 
     /**

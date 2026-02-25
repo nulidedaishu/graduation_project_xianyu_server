@@ -8,10 +8,16 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
+import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * JWT认证过滤器
@@ -51,11 +57,26 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                     request.setAttribute("currentUserId", userId);
                     request.setAttribute("currentLoginType", StpUtil.getLoginType());
 
-                    log.debug("JWT认证通过，用户ID: {}, 登录类型: {}", userId, StpUtil.getLoginType());
+                    // 获取用户角色列表并转换为 Spring Security 权限
+                    List<String> roleList = StpUtil.getRoleList();
+                    List<SimpleGrantedAuthority> authorities = roleList.stream()
+                            .map(role -> new SimpleGrantedAuthority("ROLE_" + role))
+                            .collect(Collectors.toList());
+
+                    // 创建 Spring Security 认证对象
+                    Authentication authentication = new UsernamePasswordAuthenticationToken(
+                            userId, null, authorities);
+
+                    // 设置认证信息到 Spring Security 上下文
+                    SecurityContextHolder.getContext().setAuthentication(authentication);
+
+                    log.debug("JWT认证通过，用户ID: {}, 登录类型: {}, 角色: {}",
+                            userId, StpUtil.getLoginType(), roleList);
                 }
             } catch (Exception e) {
                 log.warn("Token解析失败: {}", e.getMessage());
-                // 继续执行，让SecurityConfig的authenticated()规则处理未认证情况
+                // 清除 Security 上下文
+                SecurityContextHolder.clearContext();
             }
         }
 

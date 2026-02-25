@@ -45,3 +45,4 @@ INSERT INTO bus_product (user_id, category_id, title, description, price, status
 (12, 5, '羽毛球拍', '碳纤维材质，轻量耐用', 159.00, 1);
 
 update bus_product set status = 1 where id > 0;
+update bus_product set user_id = 14;
