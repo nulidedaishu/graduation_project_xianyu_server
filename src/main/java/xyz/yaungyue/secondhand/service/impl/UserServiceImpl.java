@@ -118,13 +118,13 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
         user.setPassword(passwordEncoder.encode(registerRequest.password()));
         user.setNickname(registerRequest.nickname());
         user.setPhone(registerRequest.phone());
-        user.setCredit_score(SystemConstants.DEFAULT_CREDIT_SCORE); // 默认信用积分
+        user.setCreditScore(SystemConstants.DEFAULT_CREDIT_SCORE); // 默认信用积分
         user.setStatus(SystemConstants.USER_STATUS_NORMAL); // 默认状态为正常
-        
+
         // 设置创建和更新时间
         LocalDateTime now = LocalDateTime.now();
-        user.setCreate_time(now);
-        user.setUpdate_time(now);
+        user.setCreateTime(now);
+        user.setUpdateTime(now);
 
         // 保存用户
         if (!save(user)) {
@@ -133,8 +133,8 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
 
         // 为新用户分配默认角色(ROLE_USER)
         UserRole userRole = new UserRole();
-        userRole.setUser_id(user.getId());
-        userRole.setRole_id(SystemConstants.ROLE_USER);
+        userRole.setUserId(user.getId());
+        userRole.setRoleId(SystemConstants.ROLE_USER);
         if (!userRoleService.save(userRole)) {
             throw new BusinessException(ErrorCode.INTERNAL_SERVER_ERROR);
         }
@@ -153,7 +153,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
         // 过滤掉null元素，避免NullPointerException
         return userRoles.stream()
             .filter(Objects::nonNull)
-            .map(UserRole::getRole_id)
+            .map(UserRole::getRoleId)
             .filter(Objects::nonNull) // 同时过滤掉role_id为null的情况
             .collect(Collectors.toSet());
     }

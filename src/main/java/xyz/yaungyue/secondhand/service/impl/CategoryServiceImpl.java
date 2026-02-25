@@ -53,11 +53,11 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryMapper, Category>
         
         // 创建分类
         Category category = new Category();
-        category.setParent_id(parentId);
+        category.setParentId(parentId);
         category.setName(name);
         category.setIcon(icon);
         category.setSort(sort);
-        category.setCreate_time(LocalDateTime.now());
+        category.setCreateTime(LocalDateTime.now());
         
         boolean saved = save(category);
         if (!saved) {
@@ -82,7 +82,7 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryMapper, Category>
         }
         
         // 检查父分类是否存在
-        if (parentId != null && !parentId.equals(category.getParent_id())) {
+        if (parentId != null && !parentId.equals(category.getParentId())) {
             Category parentCategory = getById(parentId);
             if (parentCategory == null) {
                 log.warn("父分类不存在，父分类ID: {}", parentId);
@@ -103,7 +103,7 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryMapper, Category>
         }
         
         // 更新分类
-        category.setParent_id(parentId);
+        category.setParentId(parentId);
         category.setName(name);
         category.setIcon(icon);
         category.setSort(sort);
@@ -210,9 +210,9 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryMapper, Category>
         return categories.stream()
                 .filter(category -> {
                     if (parentId == null) {
-                        return category.getParent_id() == null;
+                        return category.getParentId() == null;
                     } else {
-                        return parentId.equals(category.getParent_id());
+                        return parentId.equals(category.getParentId());
                     }
                 })
                 .sorted((c1, c2) -> {
@@ -224,11 +224,11 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryMapper, Category>
                     List<CategoryTreeVO> children = buildCategoryTree(categories, category.getId());
                     return new CategoryTreeVO(
                             category.getId(),
-                            category.getParent_id(),
+                            category.getParentId(),
                             category.getName(),
                             category.getIcon(),
                             category.getSort(),
-                            category.getCreate_time() != null ? category.getCreate_time() : LocalDateTime.now(),
+                            category.getCreateTime() != null ? category.getCreateTime() : LocalDateTime.now(),
                             children
                     );
                 })
@@ -247,11 +247,11 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryMapper, Category>
         }
         
         Category parent = getById(parentId);
-        while (parent != null && parent.getParent_id() != null) {
-            if (parent.getParent_id().equals(categoryId)) {
+        while (parent != null && parent.getParentId() != null) {
+            if (parent.getParentId().equals(categoryId)) {
                 return true;
             }
-            parent = getById(parent.getParent_id());
+            parent = getById(parent.getParentId());
         }
         
         return false;

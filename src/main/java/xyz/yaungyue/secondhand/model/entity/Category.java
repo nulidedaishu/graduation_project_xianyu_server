@@ -16,7 +16,7 @@ import java.time.LocalDateTime;
 @Data
 public class Category {
     /**
-     * 
+     * 分类ID
      */
     @TableId(value = "id", type = IdType.AUTO)
     private Long id;
@@ -25,7 +25,7 @@ public class Category {
      * 父分类ID
      */
     @TableField(value = "parent_id")
-    private Long parent_id;
+    private Long parentId;
 
     /**
      * 分类名称
@@ -49,51 +49,5 @@ public class Category {
      * 创建时间
      */
     @TableField(value = "create_time")
-    private LocalDateTime create_time;
-
-    @Override
-    public boolean equals(Object that) {
-        if (this == that) {
-            return true;
-        }
-        if (that == null) {
-            return false;
-        }
-        if (getClass() != that.getClass()) {
-            return false;
-        }
-        Category other = (Category) that;
-        return (this.getId() == null ? other.getId() == null : this.getId().equals(other.getId()))
-            && (this.getParent_id() == null ? other.getParent_id() == null : this.getParent_id().equals(other.getParent_id()))
-            && (this.getName() == null ? other.getName() == null : this.getName().equals(other.getName()))
-            && (this.getIcon() == null ? other.getIcon() == null : this.getIcon().equals(other.getIcon()))
-            && (this.getSort() == null ? other.getSort() == null : this.getSort().equals(other.getSort()));
-    }
-
-    @Override
-    public int hashCode() {
-        final int prime = 31;
-        int result = 1;
-        result = prime * result + ((getId() == null) ? 0 : getId().hashCode());
-        result = prime * result + ((getParent_id() == null) ? 0 : getParent_id().hashCode());
-        result = prime * result + ((getName() == null) ? 0 : getName().hashCode());
-        result = prime * result + ((getIcon() == null) ? 0 : getIcon().hashCode());
-        result = prime * result + ((getSort() == null) ? 0 : getSort().hashCode());
-        return result;
-    }
-
-    @Override
-    public String toString() {
-        StringBuilder sb = new StringBuilder();
-        sb.append(getClass().getSimpleName());
-        sb.append(" [");
-        sb.append("Hash = ").append(hashCode());
-        sb.append(", id=").append(id);
-        sb.append(", parent_id=").append(parent_id);
-        sb.append(", name=").append(name);
-        sb.append(", icon=").append(icon);
-        sb.append(", sort=").append(sort);
-        sb.append("]");
-        return sb.toString();
-    }
+    private LocalDateTime createTime;
 }

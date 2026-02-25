@@ -176,11 +176,11 @@ public class CategoryController {
     private CategoryVO convertToVO(Category category) {
         return new CategoryVO(
                 category.getId(),
-                category.getParent_id(),
+                category.getParentId(),
                 category.getName(),
                 category.getIcon(),
                 category.getSort(),
-                category.getCreate_time() != null ? category.getCreate_time() : LocalDateTime.now()
+                category.getCreateTime() != null ? category.getCreateTime() : LocalDateTime.now()
         );
     }
 }

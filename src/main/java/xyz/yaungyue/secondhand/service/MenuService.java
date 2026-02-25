@@ -18,4 +18,11 @@ public interface MenuService extends IService<Menu> {
      * @return 菜单列表
      */
     List<Menu> getMenusByAdminId(Long adminId);
+
+    /**
+     * 根据管理员ID获取权限列表
+     * @param adminId 管理员ID
+     * @return 权限code列表
+     */
+    List<String> getPermissionsByAdminId(Long adminId);
 }
