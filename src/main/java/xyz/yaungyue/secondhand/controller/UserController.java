@@ -25,6 +25,7 @@ public class UserController {
 
     /**
      * 获取用户列表（需要登录）
+     * @return 用户列表
      */
     @GetMapping
     @SaCheckLogin  // 需要登录才能访问
@@ -36,6 +37,8 @@ public class UserController {
 
     /**
      * 获取用户详情（需要登录）
+     * @param id 用户 ID
+     * @return 用户信息
      */
     @GetMapping("/{id}")
     @SaCheckLogin
@@ -49,6 +52,9 @@ public class UserController {
 
     /**
      * 更新用户信息（需要登录且只能更新自己的信息）
+     * @param id 用户 ID
+     * @param user 用户信息
+     * @return 更新后的用户信息
      */
     @PutMapping("/{id}")
     @SaCheckLogin
@@ -71,9 +77,11 @@ public class UserController {
 
     /**
      * 删除用户（需要管理员角色）
+     * @param id 用户 ID
+     * @return 操作结果
      */
     @DeleteMapping("/{id}")
-    @SaCheckRole("admin")  // 需要admin角色
+    @SaCheckRole("admin")  // 需要 admin 角色
     public ApiResponse<Void> deleteUser(@PathVariable Long id) {
         boolean success = userService.removeById(id);
         if (success) {
@@ -84,6 +92,7 @@ public class UserController {
 
     /**
      * 获取当前登录用户信息
+     * @return 当前用户信息
      */
     @GetMapping("/me")
     @SaCheckLogin
@@ -93,7 +102,8 @@ public class UserController {
     }
 
     /**
-     * 刷新用户session信息
+     * 刷新用户 session 信息
+     * @return 刷新后的用户信息
      */
     @PostMapping("/refresh-session")
     @SaCheckLogin

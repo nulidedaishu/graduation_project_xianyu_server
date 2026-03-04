@@ -37,7 +37,7 @@ public class Order {
     private BigDecimal totalAmount;
 
     /**
-     * 状态(0-待付款, 1-待发货, 2-待收货, 3-待评价, 4-交易完成, 5-已取消, 6-超时关闭)
+     * 状态(0-待付款, 1-待发货, 2-待收货, 3-待评价, 4-已完成, 5-已取消, 6-已关闭)
      */
     private Integer status;
 
@@ -67,9 +67,24 @@ public class Order {
     private LocalDateTime expireTime;
 
     /**
-     * 收货地址快照(存储下单时的地址)
+     * 收货地址快照
      */
     private Object addressSnapshot;
+
+    /**
+     * 备注/关闭原因
+     */
+    private String remark;
+
+    /**
+     * 关闭时间
+     */
+    private LocalDateTime closeTime;
+
+    /**
+     * 完成时间
+     */
+    private LocalDateTime completeTime;
 
     /**
      * 
@@ -99,6 +114,9 @@ public class Order {
             && (this.getReceiveTime() == null ? other.getReceiveTime() == null : this.getReceiveTime().equals(other.getReceiveTime()))
             && (this.getExpireTime() == null ? other.getExpireTime() == null : this.getExpireTime().equals(other.getExpireTime()))
             && (this.getAddressSnapshot() == null ? other.getAddressSnapshot() == null : this.getAddressSnapshot().equals(other.getAddressSnapshot()))
+            && (this.getRemark() == null ? other.getRemark() == null : this.getRemark().equals(other.getRemark()))
+            && (this.getCloseTime() == null ? other.getCloseTime() == null : this.getCloseTime().equals(other.getCloseTime()))
+            && (this.getCompleteTime() == null ? other.getCompleteTime() == null : this.getCompleteTime().equals(other.getCompleteTime()))
             && (this.getCreateTime() == null ? other.getCreateTime() == null : this.getCreateTime().equals(other.getCreateTime()));
     }
 
@@ -117,6 +135,9 @@ public class Order {
         result = prime * result + ((getReceiveTime() == null) ? 0 : getReceiveTime().hashCode());
         result = prime * result + ((getExpireTime() == null) ? 0 : getExpireTime().hashCode());
         result = prime * result + ((getAddressSnapshot() == null) ? 0 : getAddressSnapshot().hashCode());
+        result = prime * result + ((getRemark() == null) ? 0 : getRemark().hashCode());
+        result = prime * result + ((getCloseTime() == null) ? 0 : getCloseTime().hashCode());
+        result = prime * result + ((getCompleteTime() == null) ? 0 : getCompleteTime().hashCode());
         result = prime * result + ((getCreateTime() == null) ? 0 : getCreateTime().hashCode());
         return result;
     }
@@ -138,6 +159,9 @@ public class Order {
         sb.append(", receiveTime=").append(receiveTime);
         sb.append(", expireTime=").append(expireTime);
         sb.append(", addressSnapshot=").append(addressSnapshot);
+        sb.append(", remark=").append(remark);
+        sb.append(", closeTime=").append(closeTime);
+        sb.append(", completeTime=").append(completeTime);
         sb.append(", createTime=").append(createTime);
         sb.append("]");
         return sb.toString();

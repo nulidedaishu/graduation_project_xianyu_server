@@ -75,11 +75,23 @@ public class ProductVO {
      */
     @Schema(description = "商品状态：0-待审核，1-已上架，2-已下架，3-审核拒绝", example = "0")
     private Integer status;
-
+    
     /**
-     * 发布者ID
+     * 商品库存
      */
-    @Schema(description = "发布者ID", example = "1")
+    @Schema(description = "商品库存", example = "10")
+    private Integer stock;
+    
+    /**
+     * 锁定库存 (用于下单预占)
+     */
+    @Schema(description = "锁定库存 (用于下单预占)", example = "2")
+    private Integer lockedStock;
+    
+    /**
+     * 发布者 ID
+     */
+    @Schema(description = "发布者 ID", example = "1")
     private Long userId;
 
     /**

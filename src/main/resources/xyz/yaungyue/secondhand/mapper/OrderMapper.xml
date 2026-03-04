@@ -16,12 +16,15 @@
             <result property="receiveTime" column="receive_time" />
             <result property="expireTime" column="expire_time" />
             <result property="addressSnapshot" column="address_snapshot" />
+            <result property="remark" column="remark" />
+            <result property="closeTime" column="close_time" />
+            <result property="completeTime" column="complete_time" />
             <result property="createTime" column="create_time" />
     </resultMap>
 
     <sql id="Base_Column_List">
         id,order_sn,user_id,total_amount,status,pay_type,
         pay_time,delivery_time,receive_time,expire_time,address_snapshot,
-        create_time
+        remark,close_time,complete_time,create_time
     </sql>
 </mapper>

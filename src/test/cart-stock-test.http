@@ -1,0 +1,42 @@
+### 购物车库存校验和锁定接口测试
+
+@host = http://localhost:8080
+@token = {{loginData.token}}
+
+### 1. 批量校验库存接口测试
+# @name checkStock
+POST {{host}}/api/cart/check-stock
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+[
+  {
+    "productId": 1,
+    "quantity": 1
+  },
+  {
+    "productId": 2,
+    "quantity": 2
+  }
+]
+
+### 2. 批量锁定库存接口测试
+# @name lockStock
+POST {{host}}/api/cart/lock-stock
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+[
+  {
+    "productId": 1,
+    "quantity": 1
+  },
+  {
+    "productId": 2,
+    "quantity": 2
+  }
+]
+
+### 3. 获取购物车列表（验证库存锁定后的数据）
+GET {{host}}/api/cart
+Authorization: Bearer {{token}}

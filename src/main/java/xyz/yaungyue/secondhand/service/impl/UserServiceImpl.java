@@ -39,6 +39,12 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
     private final JwtUtil jwtUtil;
     private final UserRoleService userRoleService;
 
+    /**
+     * 用户登录
+     * @param username 用户名
+     * @param password 密码
+     * @return 登录响应信息
+     */
     @Override
     public LoginResponse login(String username, String password) {
         // 查找用户
@@ -72,6 +78,11 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
         return new LoginResponse(token, userInfo);
     }
 
+    /**
+     * 根据用户名查找用户
+     * @param username 用户名
+     * @return 用户实体
+     */
     @Override
     public User findByUsername(String username) {
         QueryWrapper<User> queryWrapper = new QueryWrapper<>();
@@ -79,11 +90,21 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
         return getOne(queryWrapper);
     }
 
+    /**
+     * 根据用户 ID 查找用户
+     * @param userId 用户 ID
+     * @return 用户实体
+     */
     @Override
     public User findById(Long userId) {
         return getById(userId);
     }
 
+    /**
+     * 检查用户是否存在
+     * @param username 用户名
+     * @return 是否存在
+     */
     @Override
     public boolean existsByUsername(String username) {
         QueryWrapper<User> queryWrapper = new QueryWrapper<>();
@@ -91,6 +112,11 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
         return count(queryWrapper) > 0;
     }
 
+    /**
+     * 用户注册
+     * @param registerRequest 注册请求
+     * @return 注册成功的用户信息
+     */
     @Override
     public User register(RegisterRequest registerRequest) {
         // 参数校验
@@ -144,6 +170,11 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
         return user;
     }
     
+    /**
+     * 获取用户的角色集合
+     * @param userId 用户 ID
+     * @return 角色 ID 集合
+     */
     @Override
     public Set<Long> getUserRoleIds(Long userId) {
         QueryWrapper<UserRole> queryWrapper = new QueryWrapper<>();
@@ -158,12 +189,24 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
             .collect(Collectors.toSet());
     }
     
+    /**
+     * 验证用户是否具有指定角色
+     * @param userId 用户 ID
+     * @param roleId 角色 ID
+     * @return 是否具有该角色
+     */
     @Override
     public boolean hasRole(Long userId, Long roleId) {
         Set<Long> roleIds = getUserRoleIds(userId);
         return roleIds.contains(roleId);
     }
     
+    /**
+     * 验证用户登录类型合法性
+     * @param userId 用户 ID
+     * @param expectedHasUserRole 期望是否包含 USER_ROLE
+     * @return 验证结果
+     */
     @Override
     public boolean validateUserLoginType(Long userId, boolean expectedHasUserRole) {
         Set<Long> userRoles = getUserRoleIds(userId);

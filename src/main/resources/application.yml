@@ -23,7 +23,17 @@ sa-token:
 # JWT配置
 jwt:
   secret: mySecretKeyForSecondHandPlatformWhichShouldBeLongEnoughAndSecure123456
-  expiration: 86400000  # 24小时，单位毫秒
+  expiration: 2592000000  # 30天，单位毫秒
+
+# 支付宝配置
+alipay:
+  app-id: ${ALIPAY_APP_ID:your_app_id}
+  private-key: ${ALIPAY_PRIVATE_KEY:your_private_key}
+  public-key: ${ALIPAY_PUBLIC_KEY:your_public_key}
+  server-url: ${ALIPAY_SERVER_URL:https://openapi.alipaydev.com/gateway.do}
+  notify-url: ${ALIPAY_NOTIFY_URL:http://localhost:8080/api/payment/alipay/notify}
+  return-url: ${ALIPAY_RETURN_URL:http://localhost:8080/payment/success}
+
 spring:
   datasource:
     url: jdbc:mysql://localhost:3306/secondhand_platform?useSSL=false&serverTimezone=Asia/Shanghai
@@ -67,8 +77,37 @@ mybatis-plus:
     default-statement-timeout: 30 # 超时时间(秒)
     call-setters-on-nulls: true # 结果集中空值也调用setter
 
+# 行政区划数据导入配置
+region:
+  import:
+    enabled: true  # 是否启用自动导入
+    file-path: classpath:pca.json  # JSON文件路径
+    batch-size: 500  # 批量插入大小（暂未使用，保留用于未来扩展）
+    default-country-id: 1  # 默认国家ID（中国）
+    check-duplicate: true  # 是否检查重复数据
 
 logging:
   level:
-    io.lettuce.core: DEBUG  # 打印Redis命令和响应
-    org.springframework.data.redis.core: DEBUG
+    io.lettuce.core: WARN  # 减少Redis详细连接日志
+    org.springframework.data.redis.core: WARN
+    # 将框架日志级别设置为WARN，减少无关输出
+    org.springframework: WARN
+    org.springframework.web: WARN
+    org.springframework.boot: WARN
+    org.springframework.security: WARN
+    org.springframework.aop: WARN
+    org.springframework.transaction: WARN
+    org.springframework.cache: WARN
+    org.springframework.data: WARN
+    com.baomidou.mybatisplus: WARN
+    org.apache.ibatis: WARN
+    org.hibernate: WARN
+    ch.qos.logback: WARN
+    org.apache.catalina: WARN
+    org.apache.tomcat: WARN
+    org.eclipse.jetty: WARN
+    io.undertow: WARN
+    org.jboss: WARN
+    cn.dev33: WARN  # Sa-Token日志
+    # 业务包保持INFO级别，便于查看接口请求响应
+    xyz.yaungyue.secondhand: INFO

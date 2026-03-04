@@ -63,7 +63,26 @@ public enum ErrorCode {
     PRODUCT_CREATE_FAILED(40601, "商品创建失败"),
     PRODUCT_UPDATE_FAILED(40602, "商品更新失败"),
     PRODUCT_DELETE_FAILED(40603, "商品删除失败"),
-    INVALID_PRODUCT_STATUS(422, "无效的商品状态");
+    INVALID_PRODUCT_STATUS(422, "无效的商品状态"),
+
+    // 地址模块（407xx）
+    ADDRESS_NOT_FOUND(40701, "地址不存在"),
+    ADDRESS_NOT_BELONG_TO_USER(40702, "地址不属于当前用户"),
+    ADDRESS_CREATE_FAILED(40703, "地址创建失败"),
+    ADDRESS_UPDATE_FAILED(40704, "地址更新失败"),
+    ADDRESS_DELETE_FAILED(40705, "地址删除失败"),
+    ADDRESS_SET_DEFAULT_FAILED(40706, "设置默认地址失败"),
+    ADDRESS_MAX_LIMIT_REACHED(40707, "地址数量已达上限"),
+    ADDRESS_PHONE_FORMAT_ERROR(40708, "手机号格式不正确"),
+    ADDRESS_PARAM_VALIDATE_FAILED(40709, "地址参数校验失败"),
+
+    // 省市区模块（408xx）
+    PROVINCE_NOT_FOUND(40801, "省份不存在"),
+    CITY_NOT_FOUND(40802, "城市不存在"),
+    DISTRICT_NOT_FOUND(40803, "区县不存在"),
+    CITY_NOT_BELONG_TO_PROVINCE(40804, "城市不属于该省份"),
+    DISTRICT_NOT_BELONG_TO_CITY(40805, "区县不属于该城市"),
+    REGION_ID_INVALID(40806, "行政区划ID无效");
 
     private final int code;
     private final String message;

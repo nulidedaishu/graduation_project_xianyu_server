@@ -9,16 +9,16 @@
             <result property="userId" column="user_id" />
             <result property="consignee" column="consignee" />
             <result property="phone" column="phone" />
-            <result property="province" column="province" />
-            <result property="city" column="city" />
-            <result property="district" column="district" />
+            <result property="provinceId" column="province_id" />
+            <result property="cityId" column="city_id" />
+            <result property="districtId" column="district_id" />
             <result property="detailAddress" column="detail_address" />
             <result property="isDefault" column="is_default" />
             <result property="createTime" column="create_time" />
     </resultMap>
 
     <sql id="Base_Column_List">
-        id,user_id,consignee,phone,province,city,
-        district,detail_address,is_default,create_time
+        id,user_id,consignee,phone,province_id,city_id,
+        district_id,detail_address,is_default,create_time
     </sql>
 </mapper>

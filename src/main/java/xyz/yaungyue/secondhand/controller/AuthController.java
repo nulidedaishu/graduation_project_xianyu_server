@@ -38,6 +38,11 @@ public class AuthController {
     private static final String ADMIN_MENU_CACHE_PREFIX = "admin:menus:";
     private static final long CACHE_EXPIRE_HOURS = 2;
 
+    /**
+     * 用户登录
+     * @param request 登录请求参数
+     * @return 登录响应，包含 token 和用户信息
+     */
     @PostMapping("/login")
     public ApiResponse<LoginResponse> login(@RequestBody @Valid LoginRequest request) {
         // 使用原有的登录逻辑验证用户
@@ -62,6 +67,11 @@ public class AuthController {
         return ApiResponse.success(enhancedResponse);
     }
 
+    /**
+     * 管理员登录
+     * @param request 管理员登录请求参数
+     * @return 登录响应，包含 token 和管理员信息
+     */
     @PostMapping("/admin/login")
     public ApiResponse<LoginResponse> adminLogin(@RequestBody @Valid AdminLoginRequest request) {
         try {
@@ -75,8 +85,6 @@ public class AuthController {
             if (admin.getStatus() == 0) {
                 throw new BusinessException(401, "账号已被禁用");
             }
-            
-            // TODO: 添加密码验证逻辑
             // if (!passwordEncoder.matches(request.password(), admin.getPassword())) {
             //     throw new BusinessException(401, "密码错误");
             // }
@@ -110,6 +118,11 @@ public class AuthController {
         }
     }
 
+    /**
+     * 用户登出
+     * @param request HTTP 请求
+     * @return 操作结果
+     */
     @PostMapping("/logout")
     public ApiResponse<Void> logout(HttpServletRequest request) {
         // Sa-Token登出（用户）
@@ -117,6 +130,11 @@ public class AuthController {
         return ApiResponse.success();
     }
     
+    /**
+     * 管理员登出
+     * @param request HTTP 请求
+     * @return 操作结果
+     */
     @PostMapping("/admin/logout")
     public ApiResponse<Void> adminLogout(HttpServletRequest request) {
         // Sa-Token登出（管理员）
@@ -124,6 +142,10 @@ public class AuthController {
         return ApiResponse.success();
     }
 
+    /**
+     * 获取当前登录用户信息
+     * @return 当前用户信息
+     */
     @GetMapping("/info")
     public ApiResponse<User> getUserInfo() {
         // 获取当前登录用户信息
@@ -134,6 +156,10 @@ public class AuthController {
         return ApiResponse.success(currentUser);
     }
     
+    /**
+     * 获取当前登录管理员信息
+     * @return 当前管理员信息
+     */
     @GetMapping("/admin/info")
     public ApiResponse<Admin> getAdminInfo() {
         // 获取当前登录管理员信息
@@ -144,18 +170,31 @@ public class AuthController {
         return ApiResponse.success(currentAdmin);
     }
 
+    /**
+     * 检查用户是否已登录
+     * @return true-已登录，false-未登录
+     */
     @GetMapping("/check-login")
     public ApiResponse<Boolean> checkLogin() {
         // 检查是否登录
         return ApiResponse.success(SaTokenUtil.isLogin());
     }
     
+    /**
+     * 检查管理员是否已登录
+     * @return true-已登录，false-未登录
+     */
     @GetMapping("/admin/check-login")
     public ApiResponse<Boolean> checkAdminLogin() {
         // 检查管理员是否登录
         return ApiResponse.success(SaTokenUtil.isAdminLogin());
     }
 
+    /**
+     * 用户注册
+     * @param request 注册请求参数
+     * @return 注册成功的用户信息
+     */
     @PostMapping("/register")
     public ApiResponse<User> register(@RequestBody @Valid RegisterRequest request) {
         try {

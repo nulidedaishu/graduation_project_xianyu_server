@@ -12,10 +12,12 @@
             <result property="productImage" column="product_image" />
             <result property="price" column="price" />
             <result property="quantity" column="quantity" />
+            <result property="sellerId" column="seller_id" />
+            <result property="sellerName" column="seller_name" />
     </resultMap>
 
     <sql id="Base_Column_List">
         id,order_id,product_id,product_name,product_image,price,
-        quantity
+        quantity,seller_id,seller_name
     </sql>
 </mapper>

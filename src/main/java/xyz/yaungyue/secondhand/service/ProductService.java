@@ -42,13 +42,6 @@ public interface ProductService extends IService<Product> {
     ProductVO reviewProduct(Long productId, ProductReviewRequest request, Long adminId);
 
     /**
-     * 根据状态查询商品列表
-     * @param status 商品状态
-     * @return 商品VO列表
-     */
-    java.util.List<ProductVO> getProductsByStatus(Integer status);
-
-    /**
      * 获取待审核商品列表（分页）
      * @param page 页码
      * @param size 每页数量
@@ -69,7 +62,7 @@ public interface ProductService extends IService<Product> {
      * @param size 每页数量
      * @return 分页结果
      */
-    IPage<ProductVO> getApprovedProducts(Integer page, Integer size);
+    IPage<ProductVO> getLatestProducts(Integer page, Integer size);
 
     /**
      * 条件搜索商品
@@ -113,14 +106,7 @@ public interface ProductService extends IService<Product> {
      */
     ProductVO onlineProduct(Long productId, Long userId);
 
-    /**
-     * 更新商品库存（下单时锁定库存）
-     * @param productId 商品ID
-     * @param quantity 数量（正数表示锁定，负数表示释放）
-     * @return 是否成功
-     */
-    boolean updateLockedStock(Long productId, Integer quantity);
-
+    
     /**
      * 获取推荐商品（随机选取已上架商品）
      * @param page 页码
@@ -131,9 +117,33 @@ public interface ProductService extends IService<Product> {
 
     /**
      * 删除商品（软删除）
-     * @param productId 商品ID
-     * @param userId 用户ID
+     * @param productId 商品 ID
+     * @param userId 用户 ID
      * @return 更新后的商品
      */
     ProductVO deleteProduct(Long productId, Long userId);
+
+    /**
+     * 锁定商品库存（下单预占）
+     * @param productId 商品 ID
+     * @param quantity 锁定数量
+     * @return 是否成功
+     */
+    boolean lockStock(Long productId, Integer quantity);
+
+    /**
+     * 释放商品库存（取消订单或超时关闭）
+     * @param productId 商品 ID
+     * @param quantity 释放数量
+     * @return 是否成功
+     */
+    boolean releaseStock(Long productId, Integer quantity);
+
+    /**
+     * 确认扣减库存（支付成功）
+     * @param productId 商品 ID
+     * @param quantity 扣减数量
+     * @return 是否成功
+     */
+    boolean confirmDeductStock(Long productId, Integer quantity);
 }

@@ -10,9 +10,10 @@
             <result property="productId" column="product_id" />
             <result property="quantity" column="quantity" />
             <result property="createTime" column="create_time" />
+            <result property="updateTime" column="update_time" />
     </resultMap>
 
     <sql id="Base_Column_List">
-        id,user_id,product_id,quantity,create_time
+        id,user_id,product_id,quantity,create_time,update_time
     </sql>
 </mapper>

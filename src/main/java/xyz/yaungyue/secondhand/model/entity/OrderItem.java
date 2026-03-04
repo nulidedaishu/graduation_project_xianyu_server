@@ -50,6 +50,16 @@ public class OrderItem {
      */
     private Integer quantity;
 
+    /**
+     * 卖家ID（快照）
+     */
+    private Long sellerId;
+
+    /**
+     * 卖家昵称（快照）
+     */
+    private String sellerName;
+
     @Override
     public boolean equals(Object that) {
         if (this == that) {
@@ -68,7 +78,9 @@ public class OrderItem {
             && (this.getProductName() == null ? other.getProductName() == null : this.getProductName().equals(other.getProductName()))
             && (this.getProductImage() == null ? other.getProductImage() == null : this.getProductImage().equals(other.getProductImage()))
             && (this.getPrice() == null ? other.getPrice() == null : this.getPrice().equals(other.getPrice()))
-            && (this.getQuantity() == null ? other.getQuantity() == null : this.getQuantity().equals(other.getQuantity()));
+            && (this.getQuantity() == null ? other.getQuantity() == null : this.getQuantity().equals(other.getQuantity()))
+            && (this.getSellerId() == null ? other.getSellerId() == null : this.getSellerId().equals(other.getSellerId()))
+            && (this.getSellerName() == null ? other.getSellerName() == null : this.getSellerName().equals(other.getSellerName()));
     }
 
     @Override
@@ -82,6 +94,8 @@ public class OrderItem {
         result = prime * result + ((getProductImage() == null) ? 0 : getProductImage().hashCode());
         result = prime * result + ((getPrice() == null) ? 0 : getPrice().hashCode());
         result = prime * result + ((getQuantity() == null) ? 0 : getQuantity().hashCode());
+        result = prime * result + ((getSellerId() == null) ? 0 : getSellerId().hashCode());
+        result = prime * result + ((getSellerName() == null) ? 0 : getSellerName().hashCode());
         return result;
     }
 
@@ -98,6 +112,8 @@ public class OrderItem {
         sb.append(", productImage=").append(productImage);
         sb.append(", price=").append(price);
         sb.append(", quantity=").append(quantity);
+        sb.append(", sellerId=").append(sellerId);
+        sb.append(", sellerName=").append(sellerName);
         sb.append("]");
         return sb.toString();
     }

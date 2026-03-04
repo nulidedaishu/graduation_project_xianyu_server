@@ -75,18 +75,10 @@ public class RequestLoggingInterceptor implements HandlerInterceptor {
             }
         }
         
-        // 输出请求日志
-        log.info("=== 接口调用开始 ===");
-        log.info("请求时间: {}", new java.util.Date(startTime));
-        log.info("请求方法: {}", method);
-        log.info("请求路径: {}{}", uri, queryString != null ? "?" + queryString : "");
-        log.info("客户端IP: {}", clientIp);
-        log.info("用户代理: {}", userAgent != null ? userAgent.substring(0, Math.min(userAgent.length(), 100)) : "未知");
-        log.info("用户ID: {}", loginId);
-        log.info("Token值: {}", maskToken(tokenValue));
-        log.info("请求参数: {}", params.length() > 0 ? params.toString() : "无");
-        log.info("重要请求头: {}", headers.length() > 0 ? headers.toString() : "无");
-        log.info("=== 请求处理中 ===");
+        // 输出请求日志（简洁版）
+        log.info("请求开始 - 方法: {}, 路径: {}{}, 客户端IP: {}, 用户ID: {}, 参数: {}",
+                method, uri, queryString != null ? "?" + queryString : "", clientIp, loginId,
+                params.length() > 0 ? params.toString() : "无");
         
         return true;
     }
@@ -113,27 +105,21 @@ public class RequestLoggingInterceptor implements HandlerInterceptor {
             // 忽略异常
         }
         
-        // 输出响应日志
-        log.info("=== 接口调用结束 ===");
-        log.info("请求方法: {}", method);
-        log.info("请求路径: {}", uri);
-        log.info("用户ID: {}", loginId);
-        log.info("响应状态: {}", status);
-        log.info("处理耗时: {} ms", duration);
-        
+        // 输出响应日志（简洁版）
+        String logMessage = String.format("请求结束 - 方法: %s, 路径: %s, 用户ID: %s, 状态: %d, 耗时: %dms",
+                method, uri, loginId, status, duration);
+
         // 根据状态码记录不同级别的日志
         if (status >= 200 && status < 300) {
-            log.info("请求处理成功 ✓");
+            log.info(logMessage);
         } else if (status >= 400 && status < 500) {
-            log.warn("客户端错误 ⚠️  状态码: {}", status);
+            log.warn(logMessage);
         } else if (status >= 500) {
-            log.error("服务器错误 ❌ 状态码: {}", status);
+            log.error(logMessage);
             if (ex != null) {
                 log.error("异常详情: ", ex);
             }
         }
-        
-        log.info("===================");
     }
     
     /**

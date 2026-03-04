@@ -31,6 +31,8 @@ public class CategoryController {
 
     /**
      * 创建商品分类（需要管理员权限）
+     * @param request 分类创建请求
+     * @return 创建的分类信息
      */
     @PostMapping
     @SaCheckRole("admin")
@@ -51,6 +53,8 @@ public class CategoryController {
 
     /**
      * 更新商品分类（需要管理员权限）
+     * @param request 分类更新请求
+     * @return 更新后的分类信息
      */
     @PutMapping
     @SaCheckRole("admin")
@@ -72,6 +76,8 @@ public class CategoryController {
 
     /**
      * 删除商品分类（需要管理员权限）
+     * @param id 分类 ID
+     * @return 操作结果
      */
     @DeleteMapping("/{id}")
     @SaCheckRole("admin")
@@ -86,6 +92,8 @@ public class CategoryController {
 
     /**
      * 获取分类详情
+     * @param id 分类 ID
+     * @return 分类详情
      */
     @GetMapping("/{id}")
     @SaCheckLogin
@@ -105,6 +113,7 @@ public class CategoryController {
 
     /**
      * 获取所有分类（平铺结构）
+     * @return 分类列表
      */
     @GetMapping
     @SaCheckLogin
@@ -122,6 +131,7 @@ public class CategoryController {
 
     /**
      * 获取分类树形结构（公开接口，无需登录）
+     * @return 分类树形结构
      */
     @GetMapping("/tree")
     public ApiResponse<List<CategoryTreeVO>> getCategoryTree() {
@@ -135,6 +145,8 @@ public class CategoryController {
 
     /**
      * 获取指定分类的子分类
+     * @param parentId 父分类 ID
+     * @return 子分类列表
      */
     @GetMapping("/{parentId}/children")
     @SaCheckLogin
@@ -152,6 +164,10 @@ public class CategoryController {
 
     /**
      * 检查分类名称是否可用（同级下唯一性检查）
+     * @param parentId 父分类 ID
+     * @param name 分类名称
+     * @param excludeId 排除的分类 ID
+     * @return true-可用，false-不可用
      */
     @GetMapping("/check-name")
     @SaCheckLogin
@@ -170,7 +186,9 @@ public class CategoryController {
     }
 
     /**
-     * 将Category实体转换为CategoryVO
+     * 将 Category 实体转换为 CategoryVO
+     * @param category 分类实体
+     * @return 分类 VO
      */
     private CategoryVO convertToVO(Category category) {
         return new CategoryVO(

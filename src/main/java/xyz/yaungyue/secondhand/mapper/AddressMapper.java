@@ -6,7 +6,7 @@ import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 /**
 * @author yaung
 * @description 针对表【bus_address(收货地址表)】的数据库操作Mapper
-* @createDate 2026-02-25 15:46:11
+* @createDate 2026-03-03 18:12:52
 * @Entity xyz.yaungyue.secondhand.model.entity.Address
 */
 public interface AddressMapper extends BaseMapper<Address> {

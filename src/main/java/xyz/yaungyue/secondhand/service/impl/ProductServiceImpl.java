@@ -24,7 +24,6 @@ import xyz.yaungyue.secondhand.service.CategoryService;
 import xyz.yaungyue.secondhand.service.ProductService;
 import xyz.yaungyue.secondhand.service.UserService;
 
-import java.math.BigDecimal;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -39,6 +38,14 @@ public class ProductServiceImpl extends ServiceImpl<ProductMapper, Product> impl
     private final CategoryService categoryService;
     private final UserService userService;
 
+    /**
+     * 创建商品
+     *
+     * @param request 商品创建请求
+     * @param userId  用户 ID
+     * @return 创建后的商品信息
+     * @throws BusinessException 当分类不存在或保存失败时抛出
+     */
     @Override
     @Transactional(rollbackFor = Exception.class)
     public ProductVO createProduct(ProductCreateRequest request, Long userId) {
@@ -73,6 +80,15 @@ public class ProductServiceImpl extends ServiceImpl<ProductMapper, Product> impl
         return convertToVO(product);
     }
 
+    /**
+     * 审核商品（管理员操作）
+     *
+     * @param productId 商品 ID
+     * @param request   商品审核请求（包含审核状态和审核消息）
+     * @param adminId   管理员 ID
+     * @return 审核后的商品信息
+     * @throws BusinessException 当商品不存在、状态不是待审核或更新失败时抛出
+     */
     @Override
     @Transactional(rollbackFor = Exception.class)
     public ProductVO reviewProduct(Long productId, ProductReviewRequest request, Long adminId) {
@@ -103,23 +119,12 @@ public class ProductServiceImpl extends ServiceImpl<ProductMapper, Product> impl
         return convertToVO(product);
     }
 
-    @Override
-    public List<ProductVO> getProductsByStatus(Integer status) {
-        LambdaQueryWrapper<Product> wrapper = new LambdaQueryWrapper<>();
-        wrapper.eq(Product::getStatus, status)
-                .orderByDesc(Product::getCreateTime);
-
-        List<Product> products = this.list(wrapper);
-        return products.stream()
-                .map(this::convertToVO)
-                .collect(Collectors.toList());
-    }
-
     /**
      * 获取待审核商品列表（分页）
      *
      * @param page 页码
-     * @return 分页结果
+     * @param size 每页数量
+     * @return 待审核商品的分页结果
      */
     public IPage<ProductVO> getPendingProducts(Integer page, Integer size) {
         Page<Product> pageParam = new Page<>(page, size);
@@ -132,10 +137,11 @@ public class ProductServiceImpl extends ServiceImpl<ProductMapper, Product> impl
     }
 
     /**
-     * 根据ID查询商品详情
+     * 根据 ID 查询商品详情
      *
-     * @param productId 商品ID
-     * @return 商品VO
+     * @param productId 商品 ID
+     * @return 商品详细信息
+     * @throws BusinessException 当商品不存在时抛出
      */
     public ProductVO getProductById(Long productId) {
         Product product = this.getById(productId);
@@ -145,17 +151,18 @@ public class ProductServiceImpl extends ServiceImpl<ProductMapper, Product> impl
         return convertToVO(product);
     }
 
-
     /**
-     * 查询上架的商品列表（分页）
+     * 查询最新上架的商品列表（分页）
      *
      * @param page 页码
-     * @return 分页结果
+     * @param size 每页数量
+     * @return 已上架商品的分页结果，按创建时间倒序
      */
-    public IPage<ProductVO> getApprovedProducts(Integer page, Integer size) {
+    public IPage<ProductVO> getLatestProducts(Integer page, Integer size) {
         Page<Product> pageParam = new Page<>(page, size);
         LambdaQueryWrapper<Product> wrapper = new LambdaQueryWrapper<>();
         wrapper.eq(Product::getStatus, ProductStatus.APPROVED)
+                .apply("stock - locked_stock > 0")
                 .orderByDesc(Product::getCreateTime);
 
         IPage<Product> productPage = this.page(pageParam, wrapper);
@@ -165,8 +172,8 @@ public class ProductServiceImpl extends ServiceImpl<ProductMapper, Product> impl
     /**
      * 条件搜索商品
      *
-     * @param request 查询条件
-     * @return 分页结果
+     * @param request 查询条件（包含状态、分类、关键词等）
+     * @return 符合条件的商品分页结果
      */
     public IPage<ProductVO> searchProducts(ProductQueryRequest request) {
         Page<Product> pageParam = new Page<>(request.page(), request.size());
@@ -192,6 +199,9 @@ public class ProductServiceImpl extends ServiceImpl<ProductMapper, Product> impl
                     .like(Product::getDescription, request.keyword()));
         }
 
+        // 只查询有可用库存的商品（stock - locked_stock > 0）
+        wrapper.apply("stock - locked_stock > 0");
+
         // 按创建时间倒序
         wrapper.orderByDesc(Product::getCreateTime);
 
@@ -202,15 +212,17 @@ public class ProductServiceImpl extends ServiceImpl<ProductMapper, Product> impl
     /**
      * 根据分类查询商品
      *
-     * @param categoryId 分类ID
+     * @param categoryId 分类 ID
      * @param page       页码
-     * @return 分页结果
+     * @param size       每页数量
+     * @return 指定分类下已上架商品的分页结果
      */
     public IPage<ProductVO> getProductsByCategory(Long categoryId, Integer page, Integer size) {
         Page<Product> pageParam = new Page<>(page, size);
         LambdaQueryWrapper<Product> wrapper = new LambdaQueryWrapper<>();
         wrapper.eq(Product::getCategoryId, categoryId)
                 .eq(Product::getStatus, ProductStatus.APPROVED)
+                .apply("stock - locked_stock > 0")
                 .orderByDesc(Product::getCreateTime);
 
         IPage<Product> productPage = this.page(pageParam, wrapper);
@@ -220,11 +232,11 @@ public class ProductServiceImpl extends ServiceImpl<ProductMapper, Product> impl
     /**
      * 查询用户发布的商品（分页）
      *
-     * @param userId 用户ID
+     * @param userId 用户 ID
      * @param page   页码
      * @param size   每页数量
-     * @param status 商品状态（可选）
-     * @return 分页结果
+     * @param status 商品状态（可选，不传则默认排除已删除商品）
+     * @return 用户发布的商品分页结果
      */
     @Override
     public IPage<ProductVO> getProductsByUser(Long userId, Integer page, Integer size, Integer status) {
@@ -249,9 +261,10 @@ public class ProductServiceImpl extends ServiceImpl<ProductMapper, Product> impl
     /**
      * 下架商品（卖家操作）
      *
-     * @param productId 商品ID
-     * @param userId    用户ID
-     * @return 更新后的商品
+     * @param productId 商品 ID
+     * @param userId    用户 ID
+     * @return 下架后的商品信息
+     * @throws BusinessException 当商品不存在、无权操作或商品状态不是已上架时抛出
      */
     @Transactional(rollbackFor = Exception.class)
     public ProductVO offlineProduct(Long productId, Long userId) {
@@ -279,9 +292,10 @@ public class ProductServiceImpl extends ServiceImpl<ProductMapper, Product> impl
     /**
      * 上架商品（卖家操作，重新上架已下架商品）
      *
-     * @param productId 商品ID
-     * @param userId    用户ID
-     * @return 更新后的商品
+     * @param productId 商品 ID
+     * @param userId    用户 ID
+     * @return 上架后的商品信息
+     * @throws BusinessException 当商品不存在、无权操作或当前状态不允许上架时抛出
      */
     @Transactional(rollbackFor = Exception.class)
     public ProductVO onlineProduct(Long productId, Long userId) {
@@ -310,45 +324,17 @@ public class ProductServiceImpl extends ServiceImpl<ProductMapper, Product> impl
     }
 
     /**
-     * 更新商品库存（下单时锁定库存）
-     *
-     * @param productId 商品ID
-     * @param quantity  数量（正数表示锁定，负数表示释放）
-     * @return 是否成功
-     */
-    @Transactional(rollbackFor = Exception.class)
-    public boolean updateLockedStock(Long productId, Integer quantity) {
-        Product product = this.getById(productId);
-        if (product == null) {
-            return false;
-        }
-
-        // 检查可用库存
-        int availableStock = product.getStock() - product.getLockedStock();
-        if (quantity > 0 && availableStock < quantity) {
-            throw new BusinessException(400, "商品库存不足");
-        }
-
-        // 更新锁定库存
-        int newLockedStock = product.getLockedStock() + quantity;
-        if (newLockedStock < 0) {
-            newLockedStock = 0;
-        }
-
-        product.setLockedStock(newLockedStock);
-        return this.updateById(product);
-    }
-
-    /**
      * 获取推荐商品（随机选取已上架商品）
      *
      * @param page 页码
-     * @return 分页结果
+     * @param size 每页数量
+     * @return 随机推荐的已上架商品分页结果
      */
     public IPage<ProductVO> getRecommendedProducts(Integer page, Integer size) {
         Page<Product> pageParam = new Page<>(page, size);
         LambdaQueryWrapper<Product> wrapper = new LambdaQueryWrapper<>();
-        wrapper.eq(Product::getStatus, ProductStatus.APPROVED);
+        wrapper.eq(Product::getStatus, ProductStatus.APPROVED)
+                .apply("stock - locked_stock > 0");
 
         // 使用MySQL的RAND()函数随机排序
         wrapper.last("ORDER BY RAND()");
@@ -360,9 +346,10 @@ public class ProductServiceImpl extends ServiceImpl<ProductMapper, Product> impl
     /**
      * 删除商品（软删除）
      *
-     * @param productId 商品ID
-     * @param userId    用户ID
-     * @return 更新后的商品
+     * @param productId 商品 ID
+     * @param userId    用户 ID
+     * @return 删除后的商品信息
+     * @throws BusinessException 当商品不存在、无权操作或当前状态不允许删除时抛出
      */
     @Transactional(rollbackFor = Exception.class)
     public ProductVO deleteProduct(Long productId, Long userId) {
@@ -399,11 +386,12 @@ public class ProductServiceImpl extends ServiceImpl<ProductMapper, Product> impl
     }
 
     /**
-     * 修改商品
+     * 修改商品信息
      *
      * @param request 商品更新请求
-     * @param userId  用户ID
-     * @return 更新后的商品VO
+     * @param userId  用户 ID
+     * @return 更新后的商品信息
+     * @throws BusinessException 当商品不存在、无权修改、分类不存在或当前状态不允许修改时抛出
      */
     @Override
     @Transactional(rollbackFor = Exception.class)
@@ -462,7 +450,7 @@ public class ProductServiceImpl extends ServiceImpl<ProductMapper, Product> impl
     }
 
     /**
-     * 转换为VO
+     * 转换为 VO
      */
     private ProductVO convertToVO(Product product) {
         ProductVO vo = new ProductVO();
@@ -475,6 +463,8 @@ public class ProductServiceImpl extends ServiceImpl<ProductMapper, Product> impl
         vo.setDetail(product.getDescription()); // 详情使用描述
         vo.setContactInfo(product.getLocation()); // 联系方式使用位置字段
         vo.setStatus(product.getStatus());
+        vo.setStock(product.getStock()); // 设置库存
+        vo.setLockedStock(product.getLockedStock()); // 设置锁定库存
         vo.setUserId(product.getUserId());
         vo.setCreateTime(product.getCreateTime());
         vo.setUpdateTime(product.getUpdateTime());
@@ -492,5 +482,152 @@ public class ProductServiceImpl extends ServiceImpl<ProductMapper, Product> impl
         }
 
         return vo;
+    }
+
+    /**
+     * 锁定商品库存（下单时使用）
+     *
+     * @param productId 商品 ID
+     * @param quantity  要锁定的数量
+     * @return 是否锁定成功
+     * @apiNote 使用乐观锁机制防止并发问题，通过比较当前锁定库存值确保数据一致性
+     */
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public boolean lockStock(Long productId, Integer quantity) {
+        // 1. 查询商品
+        Product product = this.getById(productId);
+        if (product == null) {
+            log.warn("锁定库存失败，商品不存在，productId={}", productId);
+            return false;
+        }
+
+        // 2. 计算可用库存
+        int lockedStock = product.getLockedStock() != null ? product.getLockedStock() : 0;
+        int availableStock = product.getStock() - lockedStock;
+
+        // 3. 检查库存是否充足
+        if (availableStock < quantity) {
+            log.warn("锁定库存失败，库存不足，productId={}, available={}, requested={}",
+                    productId, availableStock, quantity);
+            return false;
+        }
+
+        // 4. 使用 MyBatis-Plus 的 update 方法进行乐观锁更新
+        // 更新条件：商品 ID 匹配 && 版本号等于预期值（防止并发）
+        LambdaQueryWrapper<Product> wrapper = new LambdaQueryWrapper<>();
+        wrapper.eq(Product::getId, productId)
+                .eq(Product::getVersion, product.getVersion()); // 乐观锁条件
+
+        Product updateProduct = new Product();
+        updateProduct.setLockedStock(lockedStock + quantity);
+
+        boolean updated = this.update(updateProduct, wrapper);
+        
+        if (updated) {
+            log.info("锁定库存成功，productId={}, quantity={}, newLockedStock={}",
+                    productId, quantity, lockedStock + quantity);
+        } else {
+            log.error("锁定库存失败（可能被其他事务修改），productId={}", productId);
+        }
+        
+        return updated;
+    }
+
+    /**
+     * 释放商品库存（取消订单时使用）
+     *
+     * @param productId 商品 ID
+     * @param quantity  要释放的数量
+     * @return 是否释放成功
+     * @apiNote 使用乐观锁机制防止并发问题，通过比较当前锁定库存值确保数据一致性
+     */
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public boolean releaseStock(Long productId, Integer quantity) {
+        // 1. 查询商品
+        Product product = this.getById(productId);
+        if (product == null) {
+            log.warn("释放库存失败，商品不存在，productId={}", productId);
+            return false;
+        }
+
+        // 2. 计算当前锁定库存
+        int lockedStock = product.getLockedStock() != null ? product.getLockedStock() : 0;
+        
+        // 3. 验证锁定库存是否足够释放
+        if (lockedStock < quantity) {
+            log.warn("释放库存失败，锁定库存不足，productId={}, locked={}, release={}",
+                    productId, lockedStock, quantity);
+            return false;
+        }
+
+        // 4. 更新锁定库存
+        // 使用乐观锁：确保 version 没有被其他事务修改
+        LambdaQueryWrapper<Product> wrapper = new LambdaQueryWrapper<>();
+        wrapper.eq(Product::getId, productId)
+                .eq(Product::getVersion, product.getVersion()); // 乐观锁条件
+
+        Product updateProduct = new Product();
+        updateProduct.setLockedStock(lockedStock - quantity);
+
+        boolean updated = this.update(updateProduct, wrapper);
+        
+        if (updated) {
+            log.info("释放库存成功，productId={}, quantity={}, newLockedStock={}",
+                    productId, quantity, lockedStock - quantity);
+        } else {
+            log.error("释放库存失败（可能被其他事务修改），productId={}", productId);
+        }
+        
+        return updated;
+    }
+
+    /**
+     * 确认扣减商品库存（支付成功后使用）
+     *
+     * @param productId 商品 ID
+     * @param quantity  要扣减的数量
+     * @return 是否扣减成功
+     * @apiNote 同时扣减总库存和锁定库存，使用乐观锁机制防止并发问题
+     */
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public boolean confirmDeductStock(Long productId, Integer quantity) {
+        // 1. 查询商品
+        Product product = this.getById(productId);
+        if (product == null) {
+            log.warn("扣减库存失败，商品不存在，productId={}", productId);
+            return false;
+        }
+
+        // 2. 验证锁定库存是否足够（确保之前已经锁定）
+        int lockedStock = product.getLockedStock() != null ? product.getLockedStock() : 0;
+        if (lockedStock < quantity) {
+            log.warn("扣减库存失败，锁定库存不足，productId={}, locked={}, deduct={}",
+                    productId, lockedStock, quantity);
+            return false;
+        }
+
+        // 3. 同时减少总库存和锁定库存
+        // 使用乐观锁：确保 version 没有被其他事务修改
+        LambdaQueryWrapper<Product> wrapper = new LambdaQueryWrapper<>();
+        wrapper.eq(Product::getId, productId)
+                .eq(Product::getVersion, product.getVersion()); // 乐观锁条件
+
+        Product updateProduct = new Product();
+        updateProduct.setStock(product.getStock() - quantity); // 扣减总库存
+        updateProduct.setLockedStock(lockedStock - quantity); // 扣减锁定库存
+
+        boolean updated = this.update(updateProduct, wrapper);
+        
+        if (updated) {
+            log.info("确认扣减库存成功，productId={}, quantity={}, newStock={}, newLockedStock={}",
+                    productId, quantity, product.getStock() - quantity, lockedStock - quantity);
+        } else {
+            log.error("确认扣减库存失败（可能被其他事务修改），productId={}", productId);
+        }
+        
+        return updated;
     }
 }
