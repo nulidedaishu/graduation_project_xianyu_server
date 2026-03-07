@@ -149,8 +149,8 @@ POST {{baseUrl}}/api/auth/login
 Content-Type: application/json
 
 {
-  "username": "admin",
-  "password": "123456"
+  "username": "aaaaaa",
+  "password": "aaaaaa"
 }
 
 ### 4.2 提取登录token用于后续请求

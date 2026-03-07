@@ -4,18 +4,14 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
 import java.util.List;
 
 /**
- * 商品响应VO
- *
- * @author yaungyue
- * @date 2026-02-12
+ * 商品详情 VO（用于详情展示）
  */
 @Data
-@Schema(description = "商品信息")
-public class ProductVO {
+@Schema(description = "商品详情信息")
+public class ProductDetailVO {
 
     /**
      * 商品 ID
@@ -63,11 +59,23 @@ public class ProductVO {
      * 所在城市
      */
     @Schema(description = "所在城市", example = "北京市")
-    private String city;
+    private String province;
 
     /**
      * 商品图片 URL 列表（包含主图和其他图片）
      */
     @Schema(description = "商品图片 URL 列表")
     private List<String> imageUrls;
+
+    /**
+     * 商品状态
+     */
+    @Schema(description = "商品状态", example = "1")
+    private Integer status;
+
+    /**
+     * 发布者id
+     */
+    @Schema(description = "发布者id", example = "1")
+    private Long userId;
 }

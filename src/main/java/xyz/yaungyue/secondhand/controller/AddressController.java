@@ -44,6 +44,7 @@ public class AddressController {
 
     /**
      * 创建地址
+     *
      * @param request 地址创建请求
      * @return 创建的地址信息
      */
@@ -58,7 +59,8 @@ public class AddressController {
 
     /**
      * 更新地址
-     * @param id 地址 ID
+     *
+     * @param id      地址 ID
      * @param request 地址更新请求
      * @return 更新后的地址信息
      */
@@ -75,6 +77,7 @@ public class AddressController {
 
     /**
      * 删除地址
+     *
      * @param id 地址 ID
      * @return 操作结果
      */
@@ -90,6 +93,7 @@ public class AddressController {
 
     /**
      * 获取当前用户的地址列表
+     *
      * @return 地址列表
      */
     @GetMapping
@@ -103,6 +107,7 @@ public class AddressController {
 
     /**
      * 获取地址详情
+     *
      * @param id 地址 ID
      * @return 地址详情
      */
@@ -118,6 +123,7 @@ public class AddressController {
 
     /**
      * 设置默认地址
+     *
      * @param id 地址 ID
      * @return 操作结果
      */
@@ -133,6 +139,7 @@ public class AddressController {
 
     /**
      * 获取省份列表
+     *
      * @param countryId 国家 ID，默认为 1
      * @return 省份列表
      */
@@ -156,6 +163,7 @@ public class AddressController {
 
     /**
      * 获取城市列表
+     *
      * @param provinceId 省份 ID
      * @return 城市列表
      */
@@ -179,6 +187,7 @@ public class AddressController {
 
     /**
      * 获取区县列表
+     *
      * @param cityId 城市 ID
      * @return 区县列表
      */

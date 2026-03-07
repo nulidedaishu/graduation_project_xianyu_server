@@ -21,6 +21,8 @@ import xyz.yaungyue.secondhand.model.dto.request.ProductUpdateRequest;
 import xyz.yaungyue.secondhand.model.dto.request.StockCheckRequest;
 import xyz.yaungyue.secondhand.model.dto.request.StockLockRequest;
 import xyz.yaungyue.secondhand.model.dto.response.ApiResponse;
+import xyz.yaungyue.secondhand.model.dto.response.ProductDetailVO;
+import xyz.yaungyue.secondhand.model.dto.response.ProductListVO;
 import xyz.yaungyue.secondhand.model.dto.response.ProductVO;
 import xyz.yaungyue.secondhand.model.dto.response.StockCheckResult;
 import xyz.yaungyue.secondhand.model.dto.response.StockLockResult;
@@ -54,6 +56,7 @@ public class ProductController {
     /**
      * 发布商品
      * 需要登录，普通用户即可发布
+     *
      * @param request 商品创建请求
      * @return 发布的商品信息
      */
@@ -70,104 +73,135 @@ public class ProductController {
     /**
      * 获取最新商品（分页）
      * 公开接口，无需登录
+     *
      * @param page 页码
      * @param size 每页数量
      * @return 商品列表
      */
     @GetMapping
     @Operation(summary = "获取最新商品", description = "获取最新上架的商品列表，支持分页，每页固定 20 条")
-    public ApiResponse<IPage<ProductVO>> getLatestProducts(
+    public ApiResponse<IPage<ProductListVO>> getLatestProducts(
             @Parameter(description = "页码", example = "1") @RequestParam(name = "page", defaultValue = "1") Integer page,
             @Parameter(description = "每页数量", example = "20") @RequestParam(name = "size", defaultValue = "20") Integer size) {
-        IPage<ProductVO> products = productService.getLatestProducts(page, size);
+        Long currentUserId = null;
+        try {
+            currentUserId = SaTokenUtil.getCurrentUserId();
+        } catch (Exception e) {
+            // 未登录时忽略异常
+        }
+        IPage<ProductListVO> products = productService.getLatestProducts(page, size, currentUserId);
         return ApiResponse.success(products);
     }
 
     /**
      * 获取推荐商品
      * 公开接口，无需登录
+     *
      * @param page 页码
      * @param size 每页数量
      * @return 商品列表
      */
     @GetMapping("/recommend")
     @Operation(summary = "推荐商品", description = "随机获取已上架的推荐商品，每页固定 20 条")
-    public ApiResponse<IPage<ProductVO>> getRecommendedProducts(
+    public ApiResponse<IPage<ProductListVO>> getRecommendedProducts(
             @Parameter(description = "页码", example = "1") @RequestParam(name = "page", defaultValue = "1") Integer page,
             @Parameter(description = "每页数量", example = "20") @RequestParam(name = "size", defaultValue = "20") Integer size) {
-        IPage<ProductVO> products = productService.getRecommendedProducts(page, size);
+        Long currentUserId = null;
+        try {
+            currentUserId = SaTokenUtil.getCurrentUserId();
+        } catch (Exception e) {
+            // 未登录时忽略异常
+        }
+        IPage<ProductListVO> products = productService.getRecommendedProducts(page, size, currentUserId);
         return ApiResponse.success(products);
     }
 
     /**
      * 搜索商品
      * 公开接口，无需登录
+     *
      * @param request 商品查询请求
      * @return 商品列表
      */
     @GetMapping("/search")
     @Operation(summary = "搜索商品", description = "根据关键词、分类等条件搜索商品")
-    public ApiResponse<IPage<ProductVO>> searchProducts(ProductQueryRequest request) {
-        IPage<ProductVO> products = productService.searchProducts(request);
+    public ApiResponse<IPage<ProductListVO>> searchProducts(ProductQueryRequest request) {
+        Long currentUserId = null;
+        try {
+            currentUserId = SaTokenUtil.getCurrentUserId();
+        } catch (Exception e) {
+            // 未登录时忽略异常
+        }
+        IPage<ProductListVO> products = productService.searchProducts(request, currentUserId);
         return ApiResponse.success(products);
     }
 
     /**
      * 获取商品详情
      * 公开接口，无需登录
+     *
      * @param id 商品 ID
      * @return 商品详情
      */
     @GetMapping("/{id}")
     @Operation(summary = "获取商品详情", description = "根据商品 ID 获取详细信息")
-    public ApiResponse<ProductVO> getProductById(
-            @Parameter(description = "商品ID", example = "1") @PathVariable Long id) {
-        ProductVO product = productService.getProductById(id);
+    public ApiResponse<ProductDetailVO> getProductById(
+            @Parameter(description = "商品 ID", example = "1") @PathVariable Long id) {
+        ProductDetailVO product = productService.getProductDetailById(id);
         return ApiResponse.success(product);
     }
 
     /**
      * 根据分类获取商品
      * 公开接口，无需登录
+     *
      * @param categoryId 分类 ID
-     * @param page 页码
-     * @param size 每页数量
+     * @param page       页码
+     * @param size       每页数量
      * @return 商品列表
      */
     @GetMapping("/category/{categoryId}")
     @Operation(summary = "按分类查询商品", description = "获取指定分类下的商品列表，每页固定 20 条")
-    public ApiResponse<IPage<ProductVO>> getProductsByCategory(
-            @Parameter(description = "分类ID", example = "1") @PathVariable Long categoryId,
+    public ApiResponse<IPage<ProductListVO>> getProductsByCategory(
+            @Parameter(description = "分类 ID", example = "1") @PathVariable Long categoryId,
             @Parameter(description = "页码", example = "1") @RequestParam(name = "page", defaultValue = "1") Integer page,
             @Parameter(description = "每页数量", example = "20") @RequestParam(name = "size", defaultValue = "20") Integer size) {
-        IPage<ProductVO> products = productService.getProductsByCategory(categoryId, page, size);
+        Long currentUserId = null;
+        try {
+            currentUserId = SaTokenUtil.getCurrentUserId();
+        } catch (Exception e) {
+            // 未登录时忽略异常
+        }
+        IPage<ProductListVO> products = productService.getProductsByCategory(categoryId, page, size, currentUserId);
         return ApiResponse.success(products);
     }
 
     /**
      * 获取我发布的商品
      * 需要登录
-     * @param page 页码
-     * @param size 每页数量
+     *
+     * @param page   页码
+     * @param size   每页数量
      * @param status 商品状态（可选）
      * @return 商品列表
      */
     @GetMapping("/my")
     @SaCheckLogin(type = "user")
     @Operation(summary = "我的商品", description = "获取当前登录用户发布的商品列表，每页固定 20 条")
-    public ApiResponse<IPage<ProductVO>> getMyProducts(
+    public ApiResponse<IPage<ProductListVO>> getMyProducts(
             @Parameter(description = "页码", example = "1") @RequestParam(name = "page", defaultValue = "1") Integer page,
             @Parameter(description = "每页数量", example = "20") @RequestParam(name = "size", defaultValue = "20") Integer size,
-            @Parameter(description = "商品状态(0-待审核,1-已上架,2-审核驳回,3-已下架,4-已售出,5-已删除)", example = "1")
+            @Parameter(description = "商品状态 (0-待审核，1-已上架，2-审核驳回，3-已下架，4-已售出，5-已删除)", example = "1")
             @RequestParam(name = "status", required = false) Integer status) {
         Long userId = SaTokenUtil.getCurrentUserId();
-        IPage<ProductVO> products = productService.getProductsByUser(userId, page, size, status);
+        IPage<ProductListVO> products = productService.getProductsByUser(userId, page, size, status);
         return ApiResponse.success(products);
     }
 
     /**
      * 下架商品
      * 需要登录，且是商品所有者
+     *
      * @param id 商品 ID
      * @return 下架后的商品信息
      */
@@ -185,6 +219,7 @@ public class ProductController {
      * 重新上架商品
      * 需要登录，且是商品所有者
      * 被驳回或已下架的商品重新提交审核
+     *
      * @param id 商品 ID
      * @return 重新上架后的商品信息
      */
@@ -201,6 +236,7 @@ public class ProductController {
     /**
      * 获取待审核商品列表（管理员）
      * 需要管理员角色
+     *
      * @param page 页码
      * @param size 每页数量
      * @return 商品列表
@@ -218,7 +254,8 @@ public class ProductController {
     /**
      * 审核商品（管理员）
      * 需要管理员角色
-     * @param id 商品 ID
+     *
+     * @param id      商品 ID
      * @param request 审核请求
      * @return 审核后的商品信息
      */
@@ -242,6 +279,7 @@ public class ProductController {
      * 删除商品
      * 需要登录，且是商品所有者
      * 支持软删除，将商品状态设置为已删除
+     *
      * @param id 商品 ID
      * @return 操作结果
      */
@@ -259,7 +297,8 @@ public class ProductController {
      * 修改商品
      * 需要登录，且是商品所有者
      * 仅支持待审核、审核驳回、已下架状态的商品修改
-     * @param id 商品 ID
+     *
+     * @param id      商品 ID
      * @param request 商品更新请求
      * @return 修改后的商品信息
      */
@@ -269,13 +308,9 @@ public class ProductController {
     public ApiResponse<ProductVO> updateProduct(
             @Parameter(description = "商品ID", example = "1") @PathVariable Long id,
             @RequestBody @Valid ProductUpdateRequest request) {
-        // 验证路径参数和请求体中的商品ID一致
-        if (!id.equals(request.getId())) {
-            throw new BusinessException(400, "商品ID不一致");
-        }
-
         Long userId = SaTokenUtil.getCurrentUserId();
         log.info("用户修改商品，商品ID: {}, 用户ID: {}", id, userId);
+        request.setId(id);
         ProductVO product = productService.updateProduct(request, userId);
         return ApiResponse.success(product);
     }
@@ -283,7 +318,8 @@ public class ProductController {
     /**
      * 检查库存是否充足
      * 需要登录
-     * @param id 商品 ID
+     *
+     * @param id      商品 ID
      * @param request 库存检查请求
      * @return 库存检查结果
      */
@@ -338,7 +374,8 @@ public class ProductController {
     /**
      * 锁定库存（下单预占）
      * 需要登录
-     * @param id 商品 ID
+     *
+     * @param id      商品 ID
      * @param request 库存锁定请求
      * @return 库存锁定结果
      */

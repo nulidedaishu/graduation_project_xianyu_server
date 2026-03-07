@@ -7,6 +7,7 @@ import jakarta.validation.constraints.Positive;
 import lombok.Data;
 
 import java.math.BigDecimal;
+import java.util.List;
 
 /**
  * 商品更新请求DTO
@@ -17,18 +18,15 @@ import java.math.BigDecimal;
 @Data
 @Schema(description = "商品更新请求")
 public class ProductUpdateRequest {
-
     /**
      * 商品ID
      */
-    @NotNull(message = "商品ID不能为空")
-    @Schema(description = "商品ID", example = "1")
+    @Schema(description = "商品ID")
     private Long id;
 
     /**
      * 商品名称
      */
-    @NotBlank(message = "商品名称不能为空")
     @Schema(description = "商品名称", example = "iPhone 15 Pro")
     private String name;
 
@@ -41,7 +39,6 @@ public class ProductUpdateRequest {
     /**
      * 商品价格
      */
-    @NotNull(message = "商品价格不能为空")
     @Positive(message = "商品价格必须大于0")
     @Schema(description = "商品价格", example = "8999.00")
     private BigDecimal price;
@@ -49,25 +46,30 @@ public class ProductUpdateRequest {
     /**
      * 商品分类ID
      */
-    @NotNull(message = "商品分类ID不能为空")
     @Schema(description = "商品分类ID", example = "1")
     private Long categoryId;
 
     /**
-     * 商品图片URL列表，多个URL用逗号分隔
+     * 主图 URL
      */
-    @Schema(description = "商品图片URL列表", example = "https://example.com/image1.jpg,https://example.com/image2.jpg")
-    private String imageUrls;
+    @Schema(description = "主图 URL", example = "https://example.com/main.jpg")
+    private String mainImageUrl;
 
     /**
-     * 商品详情
+     * 其他图片 URL 数组
      */
-    @Schema(description = "商品详情", example = "详细的产品介绍...")
-    private String detail;
+    @Schema(description = "其他图片 URL 数组")
+    private List<String> otherImageUrls;
 
     /**
-     * 联系方式
+     * 运费
      */
-    @Schema(description = "联系方式", example = "13800138000")
-    private String contactInfo;
+    @Schema(description = "运费", example = "0.00")
+    private BigDecimal freight;
+
+    /**
+     * 区位置 ID（同城交易）
+     */
+    @Schema(description = "区位置 ID", example = "1")
+    private Long districtId;
 }

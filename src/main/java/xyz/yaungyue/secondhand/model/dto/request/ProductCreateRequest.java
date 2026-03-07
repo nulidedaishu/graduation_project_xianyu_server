@@ -7,6 +7,7 @@ import jakarta.validation.constraints.Positive;
 import lombok.Data;
 
 import java.math.BigDecimal;
+import java.util.List;
 
 /**
  * 商品创建请求DTO
@@ -45,22 +46,29 @@ public class ProductCreateRequest {
     @NotNull(message = "商品分类ID不能为空")
     @Schema(description = "商品分类ID", example = "1")
     private Long categoryId;
-
+    
     /**
-     * 商品图片URL列表，多个URL用逗号分隔
+     * 主图 URL
      */
-    @Schema(description = "商品图片URL列表", example = "https://example.com/image1.jpg,https://example.com/image2.jpg")
-    private String imageUrls;
-
+    @NotBlank(message = "主图不能为空")
+    @Schema(description = "主图 URL", example = "https://example.com/main.jpg")
+    private String mainImageUrl;
+    
     /**
-     * 商品详情
+     * 其他图片 URL 数组
      */
-    @Schema(description = "商品详情", example = "详细的产品介绍...")
-    private String detail;
-
+    @Schema(description = "其他图片 URL 数组")
+    private List<String> otherImageUrls;
+    
     /**
-     * 联系方式
+     * 运费
      */
-    @Schema(description = "联系方式", example = "13800138000")
-    private String contactInfo;
+    @Schema(description = "运费", example = "0.00")
+    private BigDecimal freight;
+    
+    /**
+     * 区位置 ID（同城交易）
+     */
+    @Schema(description = "区位置 ID", example = "1")
+    private Long districtId;
 }

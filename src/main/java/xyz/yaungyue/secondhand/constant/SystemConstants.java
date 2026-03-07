@@ -21,4 +21,11 @@ public class SystemConstants {
      * 默认信用积分
      */
     public static final Integer DEFAULT_CREDIT_SCORE = 100;
+    
+    /**
+     * 文件业务类型常量
+     */
+    // 商品相关
+    public static final Integer FILE_BIZ_TYPE_PRODUCT = 1;      // 商品信息
+    public static final Integer FILE_BIZ_TYPE_MAIN_IMAGE = 8;   // 商品主图
 }

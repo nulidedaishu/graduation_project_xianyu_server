@@ -4,7 +4,6 @@ import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
-import com.baomidou.mybatisplus.annotation.Version;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import lombok.Data;
@@ -63,11 +62,6 @@ public class Product {
     private String mainImage;
 
     /**
-     * 地理位置(同城交易)
-     */
-    private String location;
-
-    /**
      * 状态(0-待审核, 1-上架, 2-审核驳回, 3-已下架, 4-已售出, 5-已删除)
      */
     private Integer status;
@@ -88,10 +82,19 @@ public class Product {
     private LocalDateTime updateTime;
 
     /**
-     * 版本号 (用于乐观锁)
+     * 版本号(用于乐观锁)
      */
-    @Version
     private Integer version;
+
+    /**
+     * 运费(默认0)
+     */
+    private BigDecimal freight;
+
+    /**
+     * 区位置(同城交易)
+     */
+    private Long districtId;
 
     @Override
     public boolean equals(Object that) {
@@ -114,12 +117,13 @@ public class Product {
             && (this.getStock() == null ? other.getStock() == null : this.getStock().equals(other.getStock()))
             && (this.getLockedStock() == null ? other.getLockedStock() == null : this.getLockedStock().equals(other.getLockedStock()))
             && (this.getMainImage() == null ? other.getMainImage() == null : this.getMainImage().equals(other.getMainImage()))
-            && (this.getLocation() == null ? other.getLocation() == null : this.getLocation().equals(other.getLocation()))
             && (this.getStatus() == null ? other.getStatus() == null : this.getStatus().equals(other.getStatus()))
             && (this.getAuditMsg() == null ? other.getAuditMsg() == null : this.getAuditMsg().equals(other.getAuditMsg()))
             && (this.getCreateTime() == null ? other.getCreateTime() == null : this.getCreateTime().equals(other.getCreateTime()))
             && (this.getUpdateTime() == null ? other.getUpdateTime() == null : this.getUpdateTime().equals(other.getUpdateTime()))
-            && (this.getVersion() == null ? other.getVersion() == null : this.getVersion().equals(other.getVersion()));
+            && (this.getVersion() == null ? other.getVersion() == null : this.getVersion().equals(other.getVersion()))
+            && (this.getFreight() == null ? other.getFreight() == null : this.getFreight().equals(other.getFreight()))
+            && (this.getDistrictId() == null ? other.getDistrictId() == null : this.getDistrictId().equals(other.getDistrictId()));
     }
 
     @Override
@@ -135,12 +139,13 @@ public class Product {
         result = prime * result + ((getStock() == null) ? 0 : getStock().hashCode());
         result = prime * result + ((getLockedStock() == null) ? 0 : getLockedStock().hashCode());
         result = prime * result + ((getMainImage() == null) ? 0 : getMainImage().hashCode());
-        result = prime * result + ((getLocation() == null) ? 0 : getLocation().hashCode());
         result = prime * result + ((getStatus() == null) ? 0 : getStatus().hashCode());
         result = prime * result + ((getAuditMsg() == null) ? 0 : getAuditMsg().hashCode());
         result = prime * result + ((getCreateTime() == null) ? 0 : getCreateTime().hashCode());
         result = prime * result + ((getUpdateTime() == null) ? 0 : getUpdateTime().hashCode());
         result = prime * result + ((getVersion() == null) ? 0 : getVersion().hashCode());
+        result = prime * result + ((getFreight() == null) ? 0 : getFreight().hashCode());
+        result = prime * result + ((getDistrictId() == null) ? 0 : getDistrictId().hashCode());
         return result;
     }
 
@@ -159,12 +164,13 @@ public class Product {
         sb.append(", stock=").append(stock);
         sb.append(", lockedStock=").append(lockedStock);
         sb.append(", mainImage=").append(mainImage);
-        sb.append(", location=").append(location);
         sb.append(", status=").append(status);
         sb.append(", auditMsg=").append(auditMsg);
         sb.append(", createTime=").append(createTime);
         sb.append(", updateTime=").append(updateTime);
         sb.append(", version=").append(version);
+        sb.append(", freight=").append(freight);
+        sb.append(", districtId=").append(districtId);
         sb.append("]");
         return sb.toString();
     }

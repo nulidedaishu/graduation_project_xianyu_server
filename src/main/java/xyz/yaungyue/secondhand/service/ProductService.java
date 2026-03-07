@@ -5,6 +5,8 @@ import xyz.yaungyue.secondhand.model.dto.request.ProductCreateRequest;
 import xyz.yaungyue.secondhand.model.dto.request.ProductReviewRequest;
 import xyz.yaungyue.secondhand.model.dto.request.ProductQueryRequest;
 import xyz.yaungyue.secondhand.model.dto.request.ProductUpdateRequest;
+import xyz.yaungyue.secondhand.model.dto.response.ProductDetailVO;
+import xyz.yaungyue.secondhand.model.dto.response.ProductListVO;
 import xyz.yaungyue.secondhand.model.dto.response.ProductVO;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.baomidou.mybatisplus.core.metadata.IPage;
@@ -50,45 +52,48 @@ public interface ProductService extends IService<Product> {
     IPage<ProductVO> getPendingProducts(Integer page, Integer size);
 
     /**
-     * 根据ID查询商品详情
-     * @param productId 商品ID
-     * @return 商品VO
+     * 根据 ID 查询商品详情
+     * @param productId 商品 ID
+     * @return 商品详情 VO
      */
-    ProductVO getProductById(Long productId);
+    ProductDetailVO getProductDetailById(Long productId);
 
     /**
      * 查询上架的商品列表（分页）
      * @param page 页码
      * @param size 每页数量
+     * @param excludeUserId 要排除的用户 ID（可为 null，为 null 时不排除任何用户）
      * @return 分页结果
      */
-    IPage<ProductVO> getLatestProducts(Integer page, Integer size);
+    IPage<ProductListVO> getLatestProducts(Integer page, Integer size, Long excludeUserId);
 
     /**
      * 条件搜索商品
      * @param request 查询条件
+     * @param excludeUserId 要排除的用户 ID（可为 null，为 null 时不排除任何用户）
      * @return 分页结果
      */
-    IPage<ProductVO> searchProducts(ProductQueryRequest request);
+    IPage<ProductListVO> searchProducts(ProductQueryRequest request, Long excludeUserId);
 
     /**
      * 根据分类查询商品
-     * @param categoryId 分类ID
+     * @param categoryId 分类 ID
      * @param page 页码
      * @param size 每页数量
+     * @param excludeUserId 要排除的用户 ID（可为 null，为 null 时不排除任何用户）
      * @return 分页结果
      */
-    IPage<ProductVO> getProductsByCategory(Long categoryId, Integer page, Integer size);
+    IPage<ProductListVO> getProductsByCategory(Long categoryId, Integer page, Integer size, Long excludeUserId);
 
     /**
      * 查询用户发布的商品（分页）
-     * @param userId 用户ID
+     * @param userId 用户 ID
      * @param page 页码
      * @param size 每页数量
      * @param status 商品状态（可选）
      * @return 分页结果
      */
-    IPage<ProductVO> getProductsByUser(Long userId, Integer page, Integer size, Integer status);
+    IPage<ProductListVO> getProductsByUser(Long userId, Integer page, Integer size, Integer status);
 
     /**
      * 下架商品（卖家操作）
@@ -105,15 +110,15 @@ public interface ProductService extends IService<Product> {
      * @return 更新后的商品
      */
     ProductVO onlineProduct(Long productId, Long userId);
-
     
     /**
      * 获取推荐商品（随机选取已上架商品）
      * @param page 页码
      * @param size 每页数量
+     * @param excludeUserId 要排除的用户 ID（可为 null，为 null 时不排除任何用户）
      * @return 分页结果
      */
-    IPage<ProductVO> getRecommendedProducts(Integer page, Integer size);
+    IPage<ProductListVO> getRecommendedProducts(Integer page, Integer size, Long excludeUserId);
 
     /**
      * 删除商品（软删除）

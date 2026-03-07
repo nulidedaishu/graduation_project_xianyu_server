@@ -1,0 +1,271 @@
+### 商品管理接口测试
+# @name product-api-test
+
+# 环境变量（请根据实际情况修改）
+@baseUrl = http://localhost:8080
+@token = eb31da30-053f-4a0f-bcd4-f806eaedc3dd
+
+### 1. 发布商品（需要登录）
+# @name createProduct
+POST {{baseUrl}}/api/products
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "name": "iPhone 15 Pro Max",
+  "description": "全新未拆封，国行正品，支持验货",
+  "price": 9999.00,
+  "categoryId": 1,
+  "mainImageUrl": "https://example.com/images/iphone15pro-main.jpg",
+  "otherImageUrls": [
+    "https://example.com/images/iphone15pro-1.jpg",
+    "https://example.com/images/iphone15pro-2.jpg",
+    "https://example.com/images/iphone15pro-3.jpg"
+  ],
+  "freight": 0.00,
+  "districtId": 1
+}
+
+### 2. 获取最新商品列表（公开）
+# @name getLatestProducts
+GET {{baseUrl}}/api/products?page=1&size=20
+Content-Type: application/json
+
+### 3. 获取推荐商品（公开）
+# @name getRecommendedProducts
+GET {{baseUrl}}/api/products/recommend?page=1&size=20
+Content-Type: application/json
+
+### 4. 搜索商品（公开）
+# @name searchProducts
+GET {{baseUrl}}/api/products/search?keyword=iPhone&page=1&size=20
+Content-Type: application/json
+
+### 5. 按分类搜索商品（公开）
+# @name searchProductsByCategory
+GET {{baseUrl}}/api/products/search?categoryId=1&status=1&page=1&size=20
+Content-Type: application/json
+
+### 6. 获取商品详情（公开）
+# @name getProductDetail
+GET {{baseUrl}}/api/products/10
+Content-Type: application/json
+
+### 7. 按分类获取商品列表（公开）
+# @name getProductsByCategory
+GET {{baseUrl}}/api/products/category/1?page=1&size=20
+Content-Type: application/json
+
+### 8. 获取我发布的商品（需要登录）
+# @name getMyProducts
+GET {{baseUrl}}/api/products/my?page=1&size=20
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+### 9. 获取我发布的商品 - 按状态筛选（需要登录）
+# @name getMyProductsByStatus
+GET {{baseUrl}}/api/products/my?page=1&size=20&status=1
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+### 10. 下架商品（需要登录，且是商品所有者）
+# @name offlineProduct
+POST {{baseUrl}}/api/products/1/offline
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+### 11. 重新上架商品（需要登录，且是商品所有者）
+# @name onlineProduct
+POST {{baseUrl}}/api/products/1/online
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+### 12. 修改商品信息（需要登录，且是商品所有者）
+# @name updateProduct
+PUT {{baseUrl}}/api/products/1
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "id": 1,
+  "name": "iPhone 15 Pro Max 更新版",
+  "description": "全新未拆封，国行正品，支持验货，价格可议",
+  "price": 9599.00,
+  "categoryId": 1,
+  "mainImageUrl": "https://example.com/images/iphone15pro-new-main.jpg",
+  "otherImageUrls": [
+    "https://example.com/images/iphone15pro-new-1.jpg",
+    "https://example.com/images/iphone15pro-new-2.jpg"
+  ],
+  "freight": 10.00,
+  "districtId": 1
+}
+
+### 13. 删除商品（需要登录，且是商品所有者）
+# @name deleteProduct
+DELETE {{baseUrl}}/api/products/1
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+### 14. 获取待审核商品列表（管理员权限）
+# @name getPendingProducts
+GET {{baseUrl}}/api/products/pending?page=1&size=20
+Authorization: Bearer {{admin_token}}
+Content-Type: application/json
+
+### 15. 审核商品 - 通过（管理员权限）
+# @name reviewProductApprove
+POST {{baseUrl}}/api/products/1/review
+Content-Type: application/json
+Authorization: Bearer {{admin_token}}
+
+{
+  "productId": 1,
+  "status": 1,
+  "auditMsg": "审核通过，商品符合要求"
+}
+
+### 16. 审核商品 - 驳回（管理员权限）
+# @name reviewProductReject
+POST {{baseUrl}}/api/products/1/review
+Content-Type: application/json
+Authorization: Bearer {{admin_token}}
+
+{
+  "productId": 1,
+  "status": 0,
+  "auditMsg": "审核驳回，商品图片不清晰，请重新上传"
+}
+
+### 17. 检查库存（需要登录）
+# @name checkStock
+POST {{baseUrl}}/api/products/1/check-stock
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "productId": 1,
+  "quantity": 2
+}
+
+### 18. 锁定库存（需要登录）
+# @name lockStock
+POST {{baseUrl}}/api/products/1/lock-stock
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "productId": 1,
+  "quantity": 2
+}
+
+### ============================================
+### 响应示例说明
+### ============================================
+
+### 商品列表响应 (ProductListVO)
+### {
+###   "code": 200,
+###   "message": "success",
+###   "data": {
+###     "records": [
+###       {
+###         "id": 1,
+###         "name": "iPhone 15 Pro Max",
+###         "price": 9999.00,
+###         "userNickname": "张三",
+###         "mainImageUrl": "https://example.com/images/iphone15pro-main.jpg"
+###       }
+###     ],
+###     "total": 100,
+###     "size": 20,
+###     "current": 1,
+###     "pages": 5
+###   }
+### }
+
+### 商品详情响应 (ProductDetailVO)
+### {
+###   "code": 200,
+###   "message": "success",
+###   "data": {
+###     "id": 1,
+###     "name": "iPhone 15 Pro Max",
+###     "description": "全新未拆封，国行正品，支持验货",
+###     "price": 9999.00,
+###     "categoryName": "手机数码",
+###     "stock": 5,
+###     "userNickname": "张三",
+###     "city": "北京市",
+###     "imageUrls": [
+###       "https://example.com/images/iphone15pro-main.jpg",
+###       "https://example.com/images/iphone15pro-1.jpg",
+###       "https://example.com/images/iphone15pro-2.jpg",
+###       "https://example.com/images/iphone15pro-3.jpg"
+###     ]
+###   }
+### }
+
+### 发布/修改商品响应
+### {
+###   "code": 200,
+###   "message": "success",
+###   "data": {
+###     "id": 1,
+###     "name": "iPhone 15 Pro Max",
+###     "description": "全新未拆封，国行正品，支持验货",
+###     "price": 9999.00,
+###     "categoryId": 1,
+###     "categoryName": "手机数码",
+###     "imageUrls": "https://example.com/images/iphone15pro-main.jpg",
+###     "detail": "全新未拆封，国行正品，支持验货",
+###     "contactInfo": "北京市朝阳区",
+###     "status": 0,
+###     "stock": 1,
+###     "lockedStock": 0,
+###     "userId": 1,
+###     "userNickname": "张三",
+###     "createTime": "2026-03-06T10:00:00",
+###     "updateTime": "2026-03-06T10:00:00"
+###   }
+### }
+
+### 测试场景
+
+#### 场景 1：完整商品发布流程
+1. 发布商品 (createProduct)
+2. 管理员审核通过 (reviewProductApprove)
+3. 查看商品详情 (getProductDetail)
+4. 买家检查库存 (checkStock)
+5. 买家锁定库存 (lockStock)
+
+#### 场景 2：商品修改流程
+1. 卖家下架商品 (offlineProduct)
+2. 卖家修改商品信息 (updateProduct)
+3. 管理员审核通过 (reviewProductApprove)
+4. 查看商品详情确认修改 (getProductDetail)
+
+#### 场景 3：商品搜索流程
+1. 按关键词搜索 (searchProducts)
+2. 按分类筛选 (getProductsByCategory)
+3. 查看商品详情 (getProductDetail)
+
+#### 场景 4：我的商品管理
+1. 查看我发布的所有商品 (getMyProducts)
+2. 查看已上架的商品 (getMyProductsByStatus?status=1)
+3. 下架某个商品 (offlineProduct)
+4. 删除某个商品 (deleteProduct)
+
+### 注意事项
+
+1. **Token 替换**：将 `{{token}}` 和 `{{admin_token}}` 替换为实际的 JWT token
+2. **商品 ID**：测试时请将路径中的商品 ID (如 `/1/`) 替换为实际存在的商品 ID
+3. **图片 URL**：测试时使用有效的图片 URL
+4. **分类 ID**：确保 categoryId 在数据库中存在
+5. **状态码说明**：
+   - 0: 待审核
+   - 1: 已上架
+   - 2: 审核驳回
+   - 3: 已下架
+   - 4: 已售出
+   - 5: 已删除

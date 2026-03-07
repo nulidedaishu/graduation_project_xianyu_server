@@ -46,7 +46,7 @@ public class File {
     private Integer fileType;
 
     /**
-     * 业务类型(1-product, 2-user, 3-shop, 4-order, 5-logistics, 6-invoice, 7-coupon)
+     * 业务类型(1-product, 2-user, 3-shop, 4-order, 5-logistics, 6-invoice, 7-coupon，8-mainImage)
      */
     private Integer bizType;
 
