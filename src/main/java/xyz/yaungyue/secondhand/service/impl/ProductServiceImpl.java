@@ -189,8 +189,8 @@ public class ProductServiceImpl extends ServiceImpl<ProductMapper, Product> impl
     /**
      * 查询最新上架的商品列表（分页）
      *
-     * @param page 页码
-     * @param size 每页数量
+     * @param page          页码
+     * @param size          每页数量
      * @param excludeUserId 要排除的用户 ID（可为 null，为 null 时不排除任何用户）
      * @return 已上架商品的分页结果，按创建时间倒序
      */
@@ -199,12 +199,12 @@ public class ProductServiceImpl extends ServiceImpl<ProductMapper, Product> impl
         LambdaQueryWrapper<Product> wrapper = new LambdaQueryWrapper<>();
         wrapper.eq(Product::getStatus, ProductStatus.APPROVED)
                 .apply("stock - locked_stock > 0");
-        
+
         // 排除指定用户的商品
         if (excludeUserId != null) {
             wrapper.ne(Product::getUserId, excludeUserId);
         }
-        
+
         wrapper.orderByDesc(Product::getCreateTime);
 
         IPage<Product> productPage = this.page(pageParam, wrapper);
@@ -214,7 +214,7 @@ public class ProductServiceImpl extends ServiceImpl<ProductMapper, Product> impl
     /**
      * 条件搜索商品
      *
-     * @param request 查询条件（包含状态、分类、关键词等）
+     * @param request       查询条件（包含状态、分类、关键词等）
      * @param excludeUserId 要排除的用户 ID（可为 null，为 null 时不排除任何用户）
      * @return 符合条件的商品分页结果
      */
@@ -244,7 +244,7 @@ public class ProductServiceImpl extends ServiceImpl<ProductMapper, Product> impl
 
         // 只查询有可用库存的商品（stock - locked_stock > 0）
         wrapper.apply("stock - locked_stock > 0");
-        
+
         // 排除指定用户的商品
         if (excludeUserId != null) {
             wrapper.ne(Product::getUserId, excludeUserId);
@@ -260,9 +260,9 @@ public class ProductServiceImpl extends ServiceImpl<ProductMapper, Product> impl
     /**
      * 根据分类查询商品
      *
-     * @param categoryId 分类 ID
-     * @param page       页码
-     * @param size       每页数量
+     * @param categoryId    分类 ID
+     * @param page          页码
+     * @param size          每页数量
      * @param excludeUserId 要排除的用户 ID（可为 null，为 null 时不排除任何用户）
      * @return 指定分类下已上架商品的分页结果
      */
@@ -272,12 +272,12 @@ public class ProductServiceImpl extends ServiceImpl<ProductMapper, Product> impl
         wrapper.eq(Product::getCategoryId, categoryId)
                 .eq(Product::getStatus, ProductStatus.APPROVED)
                 .apply("stock - locked_stock > 0");
-        
+
         // 排除指定用户的商品
         if (excludeUserId != null) {
             wrapper.ne(Product::getUserId, excludeUserId);
         }
-        
+
         wrapper.orderByDesc(Product::getCreateTime);
 
         IPage<Product> productPage = this.page(pageParam, wrapper);
@@ -334,11 +334,11 @@ public class ProductServiceImpl extends ServiceImpl<ProductMapper, Product> impl
         }
 
         // 只能下架已上架的商品
-        if (product.getStatus() != ProductStatus.APPROVED) {
-            throw new BusinessException(400, "只能下架已上架的商品");
+        if (product.getStatus() == ProductStatus.PENDING || product.getStatus() == ProductStatus.APPROVED || product.getStatus() == ProductStatus.REJECTED) {
+            product.setStatus(ProductStatus.OFFLINE);
+        } else {
+            throw new BusinessException(400, "该商品不能下架");
         }
-
-        product.setStatus(ProductStatus.OFFLINE);
         this.updateById(product);
 
         return convertToVO(product);
@@ -386,8 +386,8 @@ public class ProductServiceImpl extends ServiceImpl<ProductMapper, Product> impl
      * - 分页时从缓存的 ID 列表中截取，保证跨页无重复
      * - 缓存过期时间 10 分钟，避免内存压力
      *
-     * @param page 页码
-     * @param size 每页数量
+     * @param page          页码
+     * @param size          每页数量
      * @param excludeUserId 要排除的用户 ID（可为 null，为 null 时不排除任何用户）
      * @return 随机推荐的已上架商品分页结果
      */
@@ -395,16 +395,16 @@ public class ProductServiceImpl extends ServiceImpl<ProductMapper, Product> impl
         // 1. 生成当前时间片（每小时一个池）
         long timeSlot = System.currentTimeMillis() / (1000 * 10);
         String cacheKey = RANDOM_PRODUCTS_CACHE_KEY + timeSlot;
-    
+
         // 2. 尝试从 Redis 获取已排序的商品 ID 列表
         String cachedIdsJson = stringRedisTemplate.opsForValue().get(cacheKey);
         List<Long> productIds;
-    
+
         if (cachedIdsJson == null) {
             // 3. 缓存未命中，从数据库查询所有符合条件的商品 ID
             log.info("随机商品缓存未命中，生成新的随机池，timeSlot: {}", timeSlot);
             productIds = generateRandomProductIds(excludeUserId);
-    
+
             // 4. 存入 Redis，设置 10 分钟过期
             if (!productIds.isEmpty()) {
                 try {
@@ -429,14 +429,14 @@ public class ProductServiceImpl extends ServiceImpl<ProductMapper, Product> impl
                 productIds = generateRandomProductIds(excludeUserId);
             }
         }
-    
+
         // 6. 在内存中分页
         return paginateRandomProducts(productIds, page, size);
     }
 
     /**
      * 生成随机排序的商品 ID 列表
-     * 
+     *
      * @param excludeUserId 要排除的用户 ID（可为 null）
      * @return 随机排序的商品 ID 列表
      */
@@ -445,7 +445,7 @@ public class ProductServiceImpl extends ServiceImpl<ProductMapper, Product> impl
         wrapper.eq(Product::getStatus, ProductStatus.APPROVED)
                 .apply("stock - locked_stock > 0")
                 .select(Product::getId);
-        
+
         // 排除指定用户的商品
         if (excludeUserId != null) {
             wrapper.ne(Product::getUserId, excludeUserId);
@@ -938,7 +938,7 @@ public class ProductServiceImpl extends ServiceImpl<ProductMapper, Product> impl
                 City city = cityService.getById(district.getCityId());
                 if (city != null && city.getProvinceId() != null) {
                     Province province = provinceService.getById(city.getProvinceId());
-                    vo.setProvince(province.getName()+" "+city.getName()+" "+district.getName());
+                    vo.setProvince(province.getName() + " " + city.getName() + " " + district.getName());
                 }
             }
         }
@@ -955,6 +955,7 @@ public class ProductServiceImpl extends ServiceImpl<ProductMapper, Product> impl
         vo.setName(product.getTitle());
         vo.setPrice(product.getPrice());
         vo.setMainImageUrl(product.getMainImage());
+        vo.setStatus(product.getStatus());
 
         // 查询发布者昵称
         User user = userService.getById(product.getUserId());

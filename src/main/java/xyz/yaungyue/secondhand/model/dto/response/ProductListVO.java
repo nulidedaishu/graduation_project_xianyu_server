@@ -41,4 +41,10 @@ public class ProductListVO {
      */
     @Schema(description = "主图 URL", example = "https://example.com/image.jpg")
     private String mainImageUrl;
+
+    /**
+     * 状态
+     */
+    @Schema(description = "状态", example = "1")
+    private Integer status;
 }

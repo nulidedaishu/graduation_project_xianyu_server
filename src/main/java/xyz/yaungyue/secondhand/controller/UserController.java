@@ -5,6 +5,7 @@ import cn.dev33.satoken.annotation.SaCheckRole;
 import cn.dev33.satoken.stp.StpUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
+import xyz.yaungyue.secondhand.model.dto.request.UserRequest;
 import xyz.yaungyue.secondhand.model.dto.response.ApiResponse;
 import xyz.yaungyue.secondhand.model.entity.User;
 import xyz.yaungyue.secondhand.service.UserService;
@@ -25,6 +26,7 @@ public class UserController {
 
     /**
      * 获取用户列表（需要登录）
+     *
      * @return 用户列表
      */
     @GetMapping
@@ -37,6 +39,7 @@ public class UserController {
 
     /**
      * 获取用户详情（需要登录）
+     *
      * @param id 用户 ID
      * @return 用户信息
      */
@@ -52,20 +55,24 @@ public class UserController {
 
     /**
      * 更新用户信息（需要登录且只能更新自己的信息）
-     * @param id 用户 ID
-     * @param user 用户信息
+     *
+     * @param id          用户 ID
+     * @param userRequest 用户修改信息
      * @return 更新后的用户信息
      */
     @PutMapping("/{id}")
     @SaCheckLogin
-    public ApiResponse<User> updateUser(@PathVariable Long id, @RequestBody User user) {
+    public ApiResponse<User> updateUser(@PathVariable Long id, @RequestBody UserRequest userRequest) {
         // 检查是否是本人操作
         Long currentUserId = SaTokenUtil.getCurrentUserId();
         if (!currentUserId.equals(id)) {
             return ApiResponse.error(403, "只能更新自己的信息");
         }
+        User user = userService.findById(id);
+        user.setNickname(userRequest.nickname());
+        user.setAvatar(userRequest.avatar());
+        user.setPhone(userRequest.phone());
 
-        user.setId(id);
         boolean success = userService.updateById(user);
         if (success) {
             // 更新session中的用户信息
@@ -77,6 +84,7 @@ public class UserController {
 
     /**
      * 删除用户（需要管理员角色）
+     *
      * @param id 用户 ID
      * @return 操作结果
      */
@@ -92,6 +100,7 @@ public class UserController {
 
     /**
      * 获取当前登录用户信息
+     *
      * @return 当前用户信息
      */
     @GetMapping("/me")
@@ -103,6 +112,7 @@ public class UserController {
 
     /**
      * 刷新用户 session 信息
+     *
      * @return 刷新后的用户信息
      */
     @PostMapping("/refresh-session")

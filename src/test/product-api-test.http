@@ -2,7 +2,7 @@
 # @name product-api-test
 
 # 环境变量（请根据实际情况修改）
-@baseUrl = http://localhost:8080
+@baseUrl = http://47.101.161.4:8080
 @token = eb31da30-053f-4a0f-bcd4-f806eaedc3dd
 
 ### 1. 发布商品（需要登录）
