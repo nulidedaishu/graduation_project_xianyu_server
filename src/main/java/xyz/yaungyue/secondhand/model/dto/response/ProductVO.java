@@ -54,6 +54,12 @@ public class ProductVO {
     private Integer stock;
 
     /**
+     * 发布者ID（卖家ID）
+     */
+    @Schema(description = "发布者ID", example = "1")
+    private Long userId;
+
+    /**
      * 发布者昵称
      */
     @Schema(description = "发布者昵称", example = "张三")

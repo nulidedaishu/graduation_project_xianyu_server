@@ -630,6 +630,7 @@ public class ProductServiceImpl extends ServiceImpl<ProductMapper, Product> impl
         vo.setDescription(product.getDescription());
         vo.setPrice(product.getPrice());
         vo.setStock(product.getStock());
+        vo.setUserId(product.getUserId());
 
         // 查询分类名称
         Category category = categoryService.getById(product.getCategoryId());
