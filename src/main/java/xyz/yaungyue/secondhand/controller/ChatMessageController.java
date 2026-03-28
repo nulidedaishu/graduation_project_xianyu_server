@@ -437,8 +437,8 @@ public class ChatMessageController {
         User currentUser = SaTokenUtil.getCurrentUser();
         String sessionKey = generateSessionKey(currentUser.getId(), userId);
 
-        // 限制每页最大数量
-        size = Math.min(size, 50);
+        // 限制每页数量范围，防止非法参数
+        size = (size == null || size < 1) ? 20 : Math.min(size, 50);
 
         LambdaQueryWrapper<ChatMessage> queryWrapper = new LambdaQueryWrapper<>();
         queryWrapper.eq(ChatMessage::getSessionKey, sessionKey);
@@ -448,7 +448,8 @@ public class ChatMessageController {
             queryWrapper.lt(ChatMessage::getId, lastId);
         }
 
-        queryWrapper.orderByDesc(ChatMessage::getId)
+        // 按ID升序排列（老消息在前，新消息在后），这样前端可以直接显示
+        queryWrapper.orderByAsc(ChatMessage::getId)
                 .last("LIMIT " + size);
 
         List<ChatMessage> messages = chatMessageService.list(queryWrapper);

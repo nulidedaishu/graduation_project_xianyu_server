@@ -18,12 +18,12 @@ sa-token:
   token-style: uuid
   # 是否输出操作日志
   is-log: true
-  # JWT秘钥
-  jwt-secret-key: mySecretKeyForSecondHandPlatformWhichShouldBeLongEnoughAndSecure123456
+  # JWT秘钥 - 生产环境请通过环境变量注入
+  jwt-secret-key: ${JWT_SECRET_KEY:mySecretKeyForSecondHandPlatformWhichShouldBeLongEnoughAndSecure123456}
 
 # JWT配置
 jwt:
-  secret: mySecretKeyForSecondHandPlatformWhichShouldBeLongEnoughAndSecure123456
+  secret: ${JWT_SECRET_KEY:mySecretKeyForSecondHandPlatformWhichShouldBeLongEnoughAndSecure123456}
   expiration: 2592000000  # 30天，单位毫秒
 
 # 支付宝配置
@@ -37,9 +37,9 @@ alipay:
 
 spring:
   datasource:
-    url: jdbc:mysql://47.101.161.4:3306/secondhand_platform?useSSL=false&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true
-    username: root
-    password: se_dfh28x39y
+    url: ${MYSQL_URL:jdbc:mysql://47.101.161.4:3306/secondhand_platform?useSSL=false&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true}
+    username: ${MYSQL_USERNAME:root}
+    password: ${MYSQL_PASSWORD:se_dfh28x39y}
     driver-class-name: com.mysql.cj.jdbc.Driver
   servlet:
     multipart:
@@ -48,10 +48,50 @@ spring:
       max-request-size: 2MB
   data:
     redis:
-      host: 47.101.161.4
-      port: 6379
-      database: 0
-      password: rfuj9_2y4
+      host: ${REDIS_HOST:47.101.161.4}
+      port: ${REDIS_PORT:6379}
+      database: ${REDIS_DB:0}
+      password: ${REDIS_PASSWORD:rfuj9_2y4}
+  rabbitmq:
+    host: ${RABBITMQ_HOST:47.101.161.4}
+    port: ${RABBITMQ_PORT:5672}
+    username: ${RABBITMQ_USERNAME:guest}
+    password: ${RABBITMQ_PASSWORD:guest}
+    virtual-host: /
+    # 消费者配置
+    listener:
+      simple:
+        # 并发消费者的最小数量
+        concurrency: 2
+        # 并发消费者的最大数量
+        max-concurrency: 10
+        # 每次从队列获取的消息数（预取）
+        prefetch: 1
+        # 自动确认模式（生产环境建议用 manual 手动确认）
+        acknowledge-mode: auto
+        # 消费失败重试配置
+        retry:
+          enabled: true
+          # 最大重试次数
+          max-attempts: 3
+          # 初始重试间隔（毫秒）
+          initial-interval: 1000
+          # 重试间隔倍数
+          multiplier: 2
+          # 最大重试间隔（毫秒）
+          max-interval: 10000
+    # 连接超时配置
+    connection-timeout: 10000
+    # 心跳间隔（秒）
+    requested-heartbeat: 30
+  autoconfigure:
+    exclude:
+      - org.springframework.ai.model.openai.autoconfigure.OpenAiChatAutoConfiguration
+      - org.springframework.ai.model.openai.autoconfigure.OpenAiAudioSpeechAutoConfiguration
+      - org.springframework.ai.model.openai.autoconfigure.OpenAiAudioTranscriptionAutoConfiguration
+      - org.springframework.ai.model.openai.autoconfigure.OpenAiEmbeddingAutoConfiguration
+      - org.springframework.ai.model.openai.autoconfigure.OpenAiImageAutoConfiguration
+      - org.springframework.ai.model.openai.autoconfigure.OpenAiModerationAutoConfiguration
 
 mybatis-plus:
   # 全局配置
@@ -87,6 +127,31 @@ region:
     batch-size: 500  # 批量插入大小（暂未使用，保留用于未来扩展）
     default-country-id: 1  # 默认国家ID（中国）
     check-duplicate: true  # 是否检查重复数据
+
+# SpringDoc OpenAPI 配置
+springdoc:
+  swagger-ui:
+    path: /swagger-ui.html          # Swagger UI 访问路径
+    tags-sorter: alpha              # 标签按字母排序
+    operations-sorter: alpha        # 操作按字母排序
+    doc-expansion: none             # 默认折叠所有标签
+    default-models-expand-depth: 1  # 默认展开模型深度
+    display-request-duration: true  # 显示请求耗时
+  api-docs:
+    path: /v3/api-docs              # API Docs 访问路径
+    enabled: true                   # 启用 API Docs
+  show-actuator: false
+  packages-to-scan: xyz.yaungyue.secondhand.controller
+  info:
+    title: 闲鱼二手交易平台 API
+    description: 闲鱼二手交易平台后端接口文档
+    version: 1.0.0
+    contact:
+      name: 作者
+      email: contact@example.com
+  # 安全配置 - 添加 Authorization 请求头
+  default-consumes-media-type: application/json
+  default-produces-media-type: application/json
 
 logging:
   level:

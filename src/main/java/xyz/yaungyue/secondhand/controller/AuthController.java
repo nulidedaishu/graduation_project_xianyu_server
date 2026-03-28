@@ -1,6 +1,8 @@
 package xyz.yaungyue.secondhand.controller;
 
 import cn.dev33.satoken.stp.StpUtil;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -24,9 +26,14 @@ import xyz.yaungyue.secondhand.util.SaTokenUtil;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
+/**
+ * 认证控制器
+ * 提供用户和管理员的登录、注册、登出等功能
+ */
 @RestController
 @RequestMapping("/api/auth")
 @RequiredArgsConstructor
+@Tag(name = "认证管理", description = "用户登录、注册、登出等认证接口")
 public class AuthController {
 
     private final UserService userService;
@@ -44,6 +51,7 @@ public class AuthController {
      * @return 登录响应，包含 token 和用户信息
      */
     @PostMapping("/login")
+    @Operation(summary = "用户登录", description = "普通用户使用账号密码登录，返回 Sa-Token 和用户信息")
     public ApiResponse<LoginResponse> login(@RequestBody @Valid LoginRequest request) {
         // 使用原有的登录逻辑验证用户
         LoginResponse response = userService.login(request.username(), request.password());
@@ -73,6 +81,7 @@ public class AuthController {
      * @return 登录响应，包含 token 和管理员信息
      */
     @PostMapping("/admin/login")
+    @Operation(summary = "管理员登录", description = "管理员使用账号密码登录，返回 Sa-Token 和管理员信息")
     public ApiResponse<LoginResponse> adminLogin(@RequestBody @Valid AdminLoginRequest request) {
         try {
             // 验证管理员账号密码
@@ -124,6 +133,7 @@ public class AuthController {
      * @return 操作结果
      */
     @PostMapping("/logout")
+    @Operation(summary = "用户登出", description = "用户退出登录，清除 Sa-Token 会话")
     public ApiResponse<Void> logout(HttpServletRequest request) {
         // Sa-Token登出（用户）
         SaTokenUtil.logout();
@@ -136,6 +146,7 @@ public class AuthController {
      * @return 操作结果
      */
     @PostMapping("/admin/logout")
+    @Operation(summary = "管理员登出", description = "管理员退出登录，清除 Sa-Token 会话")
     public ApiResponse<Void> adminLogout(HttpServletRequest request) {
         // Sa-Token登出（管理员）
         SaTokenUtil.logout(true);
@@ -147,6 +158,7 @@ public class AuthController {
      * @return 当前用户信息
      */
     @GetMapping("/info")
+    @Operation(summary = "获取当前用户信息", description = "获取当前登录用户的详细信息，需要登录")
     public ApiResponse<User> getUserInfo() {
         // 获取当前登录用户信息
         User currentUser = SaTokenUtil.getCurrentUser();
@@ -161,6 +173,7 @@ public class AuthController {
      * @return 当前管理员信息
      */
     @GetMapping("/admin/info")
+    @Operation(summary = "获取当前管理员信息", description = "获取当前登录管理员的详细信息，需要管理员登录")
     public ApiResponse<Admin> getAdminInfo() {
         // 获取当前登录管理员信息
         Admin currentAdmin = SaTokenUtil.getCurrentAdmin();
@@ -175,6 +188,7 @@ public class AuthController {
      * @return true-已登录，false-未登录
      */
     @GetMapping("/check-login")
+    @Operation(summary = "检查用户登录状态", description = "检查当前用户是否已登录，返回 true/false")
     public ApiResponse<Boolean> checkLogin() {
         // 检查是否登录
         return ApiResponse.success(SaTokenUtil.isLogin());
@@ -185,6 +199,7 @@ public class AuthController {
      * @return true-已登录，false-未登录
      */
     @GetMapping("/admin/check-login")
+    @Operation(summary = "检查管理员登录状态", description = "检查当前管理员是否已登录，返回 true/false")
     public ApiResponse<Boolean> checkAdminLogin() {
         // 检查管理员是否登录
         return ApiResponse.success(SaTokenUtil.isAdminLogin());
@@ -196,6 +211,7 @@ public class AuthController {
      * @return 注册成功的用户信息
      */
     @PostMapping("/register")
+    @Operation(summary = "用户注册", description = "新用户注册，需要提供用户名、密码等信息")
     public ApiResponse<User> register(@RequestBody @Valid RegisterRequest request) {
         try {
             // 执行注册

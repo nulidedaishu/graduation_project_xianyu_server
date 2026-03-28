@@ -631,6 +631,10 @@ public class ProductServiceImpl extends ServiceImpl<ProductMapper, Product> impl
         vo.setPrice(product.getPrice());
         vo.setStock(product.getStock());
         vo.setUserId(product.getUserId());
+        vo.setStatus(product.getStatus());
+        vo.setAuditMsg(product.getAuditMsg());
+        vo.setCreateTime(product.getCreateTime());
+        vo.setUpdateTime(product.getUpdateTime());
 
         // 查询分类名称
         Category category = categoryService.getById(product.getCategoryId());
@@ -965,5 +969,88 @@ public class ProductServiceImpl extends ServiceImpl<ProductMapper, Product> impl
         }
 
         return vo;
+    }
+
+    // ==================== 管理员接口实现 ====================
+
+    /**
+     * 管理员获取所有商品列表（分页）
+     *
+     * @param page    页码
+     * @param size    每页数量
+     * @param status  商品状态（可选，为null则查询所有状态）
+     * @param keyword 搜索关键字（商品标题，可选）
+     * @return 分页结果
+     */
+    @Override
+    public IPage<ProductListVO> getAllProductsForAdmin(Integer page, Integer size, Integer status, String keyword) {
+        Page<Product> pageParam = new Page<>(page, size);
+        LambdaQueryWrapper<Product> wrapper = new LambdaQueryWrapper<>();
+
+        // 状态筛选
+        if (status != null) {
+            wrapper.eq(Product::getStatus, status);
+        }
+
+        // 关键词搜索（商品标题）
+        if (StringUtils.hasText(keyword)) {
+            wrapper.like(Product::getTitle, keyword);
+        }
+
+        // 按创建时间倒序
+        wrapper.orderByDesc(Product::getCreateTime);
+
+        IPage<Product> productPage = this.page(pageParam, wrapper);
+        return productPage.convert(this::convertToListVO);
+    }
+
+    /**
+     * 管理员强制下架商品
+     *
+     * @param productId 商品ID
+     * @param adminId   管理员ID
+     * @return 更新后的商品
+     * @throws BusinessException 当商品不存在或当前状态不允许下架时抛出
+     */
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public ProductVO forceOfflineProduct(Long productId, Long adminId) {
+        Product product = this.getById(productId);
+        if (product == null) {
+            throw new BusinessException(404, "商品不存在");
+        }
+
+        // 只能下架已上架的商品
+        if (product.getStatus() != ProductStatus.APPROVED) {
+            throw new BusinessException(400, "只能下架已上架的商品");
+        }
+
+        product.setStatus(ProductStatus.OFFLINE);
+        product.setAuditMsg("管理员强制下架");
+        boolean updated = this.updateById(product);
+
+        if (!updated) {
+            throw new BusinessException(500, "商品下架失败");
+        }
+
+        log.info("管理员强制下架商品成功，商品ID: {}, 管理员ID: {}", productId, adminId);
+
+        return convertToVO(product);
+    }
+
+    /**
+     * 管理员获取商品详情
+     *
+     * @param productId 商品ID
+     * @return 商品VO
+     * @throws BusinessException 当商品不存在时抛出
+     */
+    @Override
+    public ProductVO getProductById(Long productId) {
+        Product product = this.getById(productId);
+        if (product == null) {
+            throw new BusinessException(404, "商品不存在");
+        }
+        return convertToVO(product);
     }
 }

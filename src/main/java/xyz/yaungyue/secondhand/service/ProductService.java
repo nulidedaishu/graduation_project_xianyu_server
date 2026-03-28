@@ -151,4 +151,31 @@ public interface ProductService extends IService<Product> {
      * @return 是否成功
      */
     boolean confirmDeductStock(Long productId, Integer quantity);
+
+    // ==================== 管理员接口 ====================
+
+    /**
+     * 管理员获取所有商品列表（分页）
+     * @param page 页码
+     * @param size 每页数量
+     * @param status 商品状态（可选，为null则查询所有状态）
+     * @param keyword 搜索关键字（商品标题，可选）
+     * @return 分页结果
+     */
+    IPage<ProductListVO> getAllProductsForAdmin(Integer page, Integer size, Integer status, String keyword);
+
+    /**
+     * 管理员强制下架商品
+     * @param productId 商品ID
+     * @param adminId 管理员ID
+     * @return 更新后的商品
+     */
+    ProductVO forceOfflineProduct(Long productId, Long adminId);
+
+    /**
+     * 管理员获取商品详情
+     * @param productId 商品ID
+     * @return 商品VO
+     */
+    ProductVO getProductById(Long productId);
 }

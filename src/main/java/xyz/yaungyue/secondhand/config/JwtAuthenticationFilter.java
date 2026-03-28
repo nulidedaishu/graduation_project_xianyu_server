@@ -90,8 +90,10 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         return uri.startsWith("/api/auth/") ||           // 认证接口
                uri.equals("/api/products") ||             // 商品列表
                uri.equals("/api/categories") ||            // 分类列表
-               uri.startsWith("/swagger-ui/") ||          // Swagger UI
-               uri.startsWith("/v3/api-docs/") ||         // API文档
+               uri.startsWith("/swagger-ui") ||           // Swagger UI (包括 /swagger-ui.html 和 /swagger-ui/)
+               uri.startsWith("/v3/api-docs") ||          // API文档
+               uri.startsWith("/swagger-resources") ||    // Swagger 资源
+               uri.startsWith("/webjars") ||              // Swagger Webjars
                uri.startsWith("/static/") ||              // 静态资源
                uri.equals("/favicon.ico");                // 网站图标
     }

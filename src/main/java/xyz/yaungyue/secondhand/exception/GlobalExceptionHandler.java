@@ -123,10 +123,10 @@ public class GlobalExceptionHandler {
      * 运行时异常（NullPointerException、IllegalArgumentException 等）
      */
     @ExceptionHandler(RuntimeException.class)
-    @ResponseStatus(HttpStatus.BAD_REQUEST)   // 400
+    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)   // 500
     public ApiResponse<?> handleRuntime(RuntimeException e) {
         log.error("系统运行时异常", e);
-        return ApiResponse.error(400,e.getMessage());
+        return ApiResponse.error(500, "系统繁忙，请稍后重试");
     }
 
     /**
@@ -136,6 +136,6 @@ public class GlobalExceptionHandler {
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)   // 500
     public ApiResponse<?> handleAll(Exception e) {
         log.error("系统未知异常", e);
-        return ApiResponse.error(500, e.getMessage());
+        return ApiResponse.error(500, "系统繁忙，请稍后重试");
     }
 }

@@ -76,4 +76,28 @@ public class ProductVO {
      */
     @Schema(description = "商品图片 URL 列表")
     private List<String> imageUrls;
+
+    /**
+     * 商品状态（0-待审核，1-已上架，2-审核驳回，3-已下架，4-已售出，5-已删除）
+     */
+    @Schema(description = "商品状态", example = "1")
+    private Integer status;
+
+    /**
+     * 审核意见
+     */
+    @Schema(description = "审核意见", example = "商品信息不完整")
+    private String auditMsg;
+
+    /**
+     * 创建时间
+     */
+    @Schema(description = "创建时间")
+    private LocalDateTime createTime;
+
+    /**
+     * 更新时间
+     */
+    @Schema(description = "更新时间")
+    private LocalDateTime updateTime;
 }

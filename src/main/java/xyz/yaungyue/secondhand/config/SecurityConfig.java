@@ -78,7 +78,7 @@ public class SecurityConfig {
                 .requestMatchers("/api/categories/{id}").permitAll()
 
                 // Swagger UI 和 API 文档
-                .requestMatchers("/swagger-ui/**", "/v3/api-docs/**").permitAll()
+                .requestMatchers("/swagger-ui.html", "/swagger-ui/**", "/v3/api-docs/**", "/swagger-resources/**", "/webjars/**").permitAll()
 
                 // SSE消息推送（EventSource不支持自定义header，内部处理认证）
                 .requestMatchers("/api/messages/stream").permitAll()

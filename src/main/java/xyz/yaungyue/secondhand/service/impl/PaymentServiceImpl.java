@@ -6,6 +6,7 @@ import com.alipay.api.DefaultAlipayClient;
 import com.alipay.api.internal.util.AlipaySignature;
 import com.alipay.api.request.AlipayTradePagePayRequest;
 import com.alipay.api.response.AlipayTradePagePayResponse;
+import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -53,6 +54,23 @@ public class PaymentServiceImpl implements PaymentService {
     @Value("${alipay.return-url}")
     private String returnUrl;
 
+    // AlipayClient 单例，线程安全
+    private AlipayClient alipayClient;
+
+    @PostConstruct
+    public void init() {
+        this.alipayClient = new DefaultAlipayClient(
+                serverUrl,
+                appId,
+                privateKey,
+                "json",
+                "UTF-8",
+                publicKey,
+                "RSA2"
+        );
+        log.info("AlipayClient 初始化完成");
+    }
+
     @Override
     public PaymentVO createAlipay(Long orderId, Long userId) {
         // 1. 查询订单
@@ -71,18 +89,7 @@ public class PaymentServiceImpl implements PaymentService {
             throw new BusinessException(ErrorCode.ORDER_STATUS_ERROR.getCode(), "订单状态不允许支付");
         }
 
-        // 4. 创建支付宝客户端
-        AlipayClient alipayClient = new DefaultAlipayClient(
-                serverUrl,
-                appId,
-                privateKey,
-                "json",
-                "UTF-8",
-                publicKey,
-                "RSA2"
-        );
-
-        // 5. 创建支付请求
+        // 4. 创建支付请求
         AlipayTradePagePayRequest request = new AlipayTradePagePayRequest();
         request.setNotifyUrl(notifyUrl);
         request.setReturnUrl(returnUrl);

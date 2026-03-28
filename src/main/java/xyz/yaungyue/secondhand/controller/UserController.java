@@ -3,6 +3,9 @@ package xyz.yaungyue.secondhand.controller;
 import cn.dev33.satoken.annotation.SaCheckLogin;
 import cn.dev33.satoken.annotation.SaCheckRole;
 import cn.dev33.satoken.stp.StpUtil;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 import xyz.yaungyue.secondhand.model.dto.request.UserRequest;
@@ -20,6 +23,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/users")
 @RequiredArgsConstructor
+@Tag(name = "用户管理", description = "用户信息查询、更新、删除等接口")
 public class UserController {
 
     private final UserService userService;
@@ -31,6 +35,7 @@ public class UserController {
      */
     @GetMapping
     @SaCheckLogin  // 需要登录才能访问
+    @Operation(summary = "获取用户列表", description = "获取所有用户列表，需要登录")
     public ApiResponse<List<User>> getUserList() {
         // TODO: 实现分页查询
         List<User> users = userService.list();
@@ -45,7 +50,9 @@ public class UserController {
      */
     @GetMapping("/{id}")
     @SaCheckLogin
-    public ApiResponse<User> getUserById(@PathVariable Long id) {
+    @Operation(summary = "获取用户详情", description = "根据用户ID获取用户详细信息")
+    public ApiResponse<User> getUserById(
+            @Parameter(description = "用户ID", example = "1") @PathVariable Long id) {
         User user = userService.findById(id);
         if (user == null) {
             return ApiResponse.error(404, "用户不存在");
@@ -62,7 +69,10 @@ public class UserController {
      */
     @PutMapping("/{id}")
     @SaCheckLogin
-    public ApiResponse<User> updateUser(@PathVariable Long id, @RequestBody UserRequest userRequest) {
+    @Operation(summary = "更新用户信息", description = "更新当前登录用户的信息（只能更新自己的信息）")
+    public ApiResponse<User> updateUser(
+            @Parameter(description = "用户ID", example = "1") @PathVariable Long id,
+            @RequestBody UserRequest userRequest) {
         // 检查是否是本人操作
         Long currentUserId = SaTokenUtil.getCurrentUserId();
         if (!currentUserId.equals(id)) {
@@ -90,7 +100,9 @@ public class UserController {
      */
     @DeleteMapping("/{id}")
     @SaCheckRole("admin")  // 需要 admin 角色
-    public ApiResponse<Void> deleteUser(@PathVariable Long id) {
+    @Operation(summary = "删除用户", description = "删除指定用户，需要管理员权限")
+    public ApiResponse<Void> deleteUser(
+            @Parameter(description = "用户ID", example = "1") @PathVariable Long id) {
         boolean success = userService.removeById(id);
         if (success) {
             return ApiResponse.success();
@@ -105,6 +117,7 @@ public class UserController {
      */
     @GetMapping("/me")
     @SaCheckLogin
+    @Operation(summary = "获取当前登录用户信息", description = "获取当前登录用户的详细信息")
     public ApiResponse<User> getCurrentUser() {
         User currentUser = SaTokenUtil.getCurrentUser();
         return ApiResponse.success(currentUser);
@@ -117,6 +130,7 @@ public class UserController {
      */
     @PostMapping("/refresh-session")
     @SaCheckLogin
+    @Operation(summary = "刷新用户会话", description = "刷新用户 session 中的信息")
     public ApiResponse<User> refreshSession() {
         Long currentUserId = SaTokenUtil.getCurrentUserId();
         User user = userService.findById(currentUserId);

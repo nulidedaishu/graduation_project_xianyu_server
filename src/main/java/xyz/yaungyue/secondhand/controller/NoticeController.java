@@ -299,8 +299,8 @@ public class NoticeController {
 
         User currentUser = SaTokenUtil.getCurrentUser();
 
-        // 限制每页最大数量
-        size = Math.min(size, 50);
+        // 限制每页数量范围，防止非法参数
+        size = (size == null || size < 1) ? 20 : Math.min(size, 50);
 
         LambdaQueryWrapper<Notice> queryWrapper = new LambdaQueryWrapper<>();
         queryWrapper.eq(Notice::getUserId, currentUser.getId());
@@ -310,7 +310,8 @@ public class NoticeController {
             queryWrapper.lt(Notice::getId, lastId);
         }
 
-        queryWrapper.orderByDesc(Notice::getId)
+        // 按ID升序排列（老通知在前，新通知在后）
+        queryWrapper.orderByAsc(Notice::getId)
                 .last("LIMIT " + size);
 
         List<Notice> notices = noticeService.list(queryWrapper);

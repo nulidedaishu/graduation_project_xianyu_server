@@ -22,6 +22,7 @@ import xyz.yaungyue.secondhand.model.entity.OrderItem;
 import xyz.yaungyue.secondhand.model.entity.Product;
 import xyz.yaungyue.secondhand.model.entity.User;
 import xyz.yaungyue.secondhand.service.CartService;
+import xyz.yaungyue.secondhand.service.OrderDelayMessageService;
 import xyz.yaungyue.secondhand.service.OrderService;
 import xyz.yaungyue.secondhand.service.ProductService;
 import xyz.yaungyue.secondhand.service.UserService;
@@ -48,6 +49,7 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order> implements
     private final ProductService productService;
     private final CartService cartService;
     private final UserService userService;
+    private final OrderDelayMessageService orderDelayMessageService;
 
     // 状态流转图定义
     private static final Map<Integer, List<Integer>> STATUS_TRANSITION_MAP = Map.of(
@@ -157,6 +159,14 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order> implements
         // 5. 清空已购买的购物车商品
         if (cartIds != null && !cartIds.isEmpty()) {
             cartService.removeByIds(cartIds, userId);
+        }
+
+        // 6. 发送 RabbitMQ 延时消息（用于超时自动关闭）
+        try {
+            orderDelayMessageService.sendOrderDelayMessage(order.getId());
+        } catch (Exception e) {
+            log.error("发送订单延时消息失败，orderId={}", order.getId(), e);
+            // 降级：依赖定时任务兜底（保留原定时任务作为备份）
         }
 
         log.info("订单创建成功，orderId={}, orderSn={}, userId={}, totalAmount={}",
@@ -323,6 +333,9 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order> implements
         order.setPayType(payType);
         order.setPayTime(LocalDateTime.now());
         orderMapper.updateById(order);
+
+        // 取消延时消息（实际为消费时忽略）
+        orderDelayMessageService.cancelOrderDelayMessage(orderId);
 
         log.info("订单支付成功，orderId={}, payType={}", orderId, payType);
     }

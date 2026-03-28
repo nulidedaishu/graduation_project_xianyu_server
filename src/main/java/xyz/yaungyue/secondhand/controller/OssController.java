@@ -5,7 +5,9 @@ import com.aliyun.sts20150401.models.AssumeRoleResponseBody;
 import com.aliyun.tea.TeaException;
 import com.aliyun.oss.common.utils.BinaryUtil;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.apache.commons.codec.binary.Base64;
 import org.codehaus.jettison.json.JSONObject;
 import org.springframework.http.ResponseEntity;
@@ -26,6 +28,7 @@ import java.util.*;
 
 @RestController
 @RequestMapping("/api/oss")
+@Tag(name = "OSS 文件上传", description = "阿里云 OSS 签名获取接口")
 public class OssController {
 
     private static final Logger logger = LoggerFactory.getLogger(OssController.class);
@@ -141,6 +144,7 @@ public class OssController {
      * @throws Exception 处理异常
      */
     @GetMapping("/get_post_signature_for_oss_upload")
+    @Operation(summary = "获取 OSS 上传签名", description = "获取阿里云 OSS 直传所需的签名、policy 和临时凭证")
     public ApiResponse<Map<String, String>> getPostSignatureForOssUpload(
             @Parameter(description = "上传目录", example = "default")
             @RequestParam(value = "upload_dir", defaultValue = "default") String upload_dir) throws Exception {
