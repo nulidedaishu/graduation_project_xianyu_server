@@ -323,27 +323,6 @@ public class NoticeController {
     }
 
     /**
-     * 标记系统通知会话已读
-     * @return 操作结果
-     */
-    @PutMapping("/session/read")
-    @SaCheckPermission(value = "user:notice:session-read", type = "user")
-    @Operation(summary = "标记系统通知已读", description = "标记所有系统通知为已读")
-    public ApiResponse<Void> markSessionAsRead() {
-        User currentUser = SaTokenUtil.getCurrentUser();
-
-        LambdaQueryWrapper<Notice> queryWrapper = new LambdaQueryWrapper<>();
-        queryWrapper.eq(Notice::getUserId, currentUser.getId())
-                .eq(Notice::getIsRead, 0);
-
-        Notice updateNotice = new Notice();
-        updateNotice.setIsRead(1);
-
-        noticeService.update(updateNotice, queryWrapper);
-        return ApiResponse.success();
-    }
-
-    /**
      * 发送系统通知（管理员）
      * @param notice 通知信息
      * @return 发送结果

@@ -14,7 +14,6 @@ import xyz.yaungyue.secondhand.constant.ProductStatus;
 import xyz.yaungyue.secondhand.exception.BusinessException;
 import xyz.yaungyue.secondhand.model.dto.request.ProductCreateRequest;
 import xyz.yaungyue.secondhand.model.dto.request.ProductQueryRequest;
-import xyz.yaungyue.secondhand.model.dto.request.ProductReviewRequest;
 import xyz.yaungyue.secondhand.model.dto.request.ProductUpdateRequest;
 import xyz.yaungyue.secondhand.model.dto.request.StockCheckRequest;
 import xyz.yaungyue.secondhand.model.dto.request.StockLockRequest;
@@ -228,48 +227,6 @@ public class ProductController {
             @Parameter(description = "商品ID", example = "1") @PathVariable Long id) {
         Long userId = SaTokenUtil.getCurrentUserId();
         ProductVO product = productService.onlineProduct(id, userId);
-        return ApiResponse.success(product);
-    }
-
-    /**
-     * 获取待审核商品列表（管理员）
-     * 需要管理员角色
-     *
-     * @param page 页码
-     * @param size 每页数量
-     * @return 商品列表
-     */
-    @GetMapping("/pending")
-    @SaCheckPermission(value = "admin:product:pending", type = "admin")
-    @Operation(summary = "待审核商品", description = "管理员获取待审核的商品列表，每页固定 20 条")
-    public ApiResponse<IPage<ProductVO>> getPendingProducts(
-            @Parameter(description = "页码", example = "1") @RequestParam(name = "page", defaultValue = "1") Integer page,
-            @Parameter(description = "每页数量", example = "20") @RequestParam(name = "size", defaultValue = "20") Integer size) {
-        IPage<ProductVO> products = productService.getPendingProducts(page, size);
-        return ApiResponse.success(products);
-    }
-
-    /**
-     * 审核商品（管理员）
-     * 需要管理员角色
-     *
-     * @param id      商品 ID
-     * @param request 审核请求
-     * @return 审核后的商品信息
-     */
-    @PostMapping("/{id}/review")
-    @SaCheckPermission(value = "admin:product:audit", type = "admin")
-    @Operation(summary = "审核商品", description = "管理员审核商品（通过或驳回）")
-    public ApiResponse<ProductVO> reviewProduct(
-            @Parameter(description = "商品ID", example = "1") @PathVariable Long id,
-            @RequestBody @Valid ProductReviewRequest request) {
-        // 验证路径参数和请求体中的商品ID一致
-        if (!id.equals(request.productId())) {
-            throw new BusinessException(400, "商品ID不一致");
-        }
-
-        Long adminId = SaTokenUtil.getCurrentUserId();
-        ProductVO product = productService.reviewProduct(id, request, adminId);
         return ApiResponse.success(product);
     }
 

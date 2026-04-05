@@ -13,7 +13,6 @@ import xyz.yaungyue.secondhand.model.entity.User;
 import xyz.yaungyue.secondhand.service.UserService;
 import xyz.yaungyue.secondhand.util.SaTokenUtil;
 
-import java.util.List;
 
 /**
  * 用户管理控制器
@@ -26,20 +25,6 @@ import java.util.List;
 public class UserController {
 
     private final UserService userService;
-
-    /**
-     * 获取用户列表（需要登录）
-     *
-     * @return 用户列表
-     */
-    @GetMapping
-    @SaCheckPermission(value = "user:user:list", type = "user")
-    @Operation(summary = "获取用户列表", description = "获取所有用户列表，需要登录")
-    public ApiResponse<List<User>> getUserList() {
-        // TODO: 实现分页查询
-        List<User> users = userService.list();
-        return ApiResponse.success(users);
-    }
 
     /**
      * 获取用户详情（需要登录）
