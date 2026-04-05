@@ -49,13 +49,15 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         // 如果token存在且Sa-Token已登录，则将用户信息存入上下文
         if (token != null && !token.isEmpty()) {
             try {
-                // 检查Sa-Token是否有效登录
+                // 检查Sa-Token是否有效登录（不区分用户类型，只检查是否登录）
+                // 具体的角色和权限校验由@SaCheckRole等注解处理
                 if (StpUtil.isLogin()) {
                     Long userId = StpUtil.getLoginIdAsLong();
+                    String loginType = StpUtil.getLoginType();
 
-                    // 将用户ID存入request属性，供后续使用
+                    // 将用户ID和登录类型存入request属性，供后续使用
                     request.setAttribute("currentUserId", userId);
-                    request.setAttribute("currentLoginType", StpUtil.getLoginType());
+                    request.setAttribute("currentLoginType", loginType);
 
                     // 获取用户角色列表并转换为 Spring Security 权限
                     List<String> roleList = StpUtil.getRoleList();
@@ -71,7 +73,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                     SecurityContextHolder.getContext().setAuthentication(authentication);
 
                     log.debug("JWT认证通过，用户ID: {}, 登录类型: {}, 角色: {}",
-                            userId, StpUtil.getLoginType(), roleList);
+                            userId, loginType, roleList);
                 }
             } catch (Exception e) {
                 log.warn("Token解析失败: {}", e.getMessage());

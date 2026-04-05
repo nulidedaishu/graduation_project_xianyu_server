@@ -1,6 +1,6 @@
 package xyz.yaungyue.secondhand.controller;
 
-import cn.dev33.satoken.annotation.SaCheckLogin;
+import cn.dev33.satoken.annotation.SaCheckPermission;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -49,7 +49,7 @@ public class AddressController {
      * @return 创建的地址信息
      */
     @PostMapping
-    @SaCheckLogin
+    @SaCheckPermission(value = "user:address:*", type = "user")
     @Operation(summary = "创建地址")
     public ApiResponse<AddressVO> createAddress(@Valid @RequestBody AddressCreateRequest request) {
         log.info("创建地址请求: {}", request);
@@ -65,7 +65,7 @@ public class AddressController {
      * @return 更新后的地址信息
      */
     @PutMapping("/{id}")
-    @SaCheckLogin
+    @SaCheckPermission(value = "user:address:*", type = "user")
     @Operation(summary = "更新地址")
     public ApiResponse<AddressVO> updateAddress(
             @PathVariable @Parameter(description = "地址ID", example = "1") Long id,
@@ -82,7 +82,7 @@ public class AddressController {
      * @return 操作结果
      */
     @DeleteMapping("/{id}")
-    @SaCheckLogin
+    @SaCheckPermission(value = "user:address:*", type = "user")
     @Operation(summary = "删除地址")
     public ApiResponse<Void> deleteAddress(
             @PathVariable @Parameter(description = "地址ID", example = "1") Long id) {
@@ -97,7 +97,7 @@ public class AddressController {
      * @return 地址列表
      */
     @GetMapping
-    @SaCheckLogin
+    @SaCheckPermission(value = "user:address:*", type = "user")
     @Operation(summary = "获取当前用户的地址列表")
     public ApiResponse<List<AddressVO>> getAddressList() {
         log.info("获取当前用户地址列表");
@@ -112,7 +112,7 @@ public class AddressController {
      * @return 地址详情
      */
     @GetMapping("/{id}")
-    @SaCheckLogin
+    @SaCheckPermission(value = "user:address:*", type = "user")
     @Operation(summary = "获取地址详情")
     public ApiResponse<AddressVO> getAddressById(
             @PathVariable @Parameter(description = "地址ID", example = "1") Long id) {
@@ -128,7 +128,7 @@ public class AddressController {
      * @return 操作结果
      */
     @PutMapping("/{id}/default")
-    @SaCheckLogin
+    @SaCheckPermission(value = "user:address:*", type = "user")
     @Operation(summary = "设置默认地址")
     public ApiResponse<Void> setDefaultAddress(
             @PathVariable @Parameter(description = "地址ID", example = "1") Long id) {

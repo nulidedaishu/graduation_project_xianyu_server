@@ -1,6 +1,6 @@
 package xyz.yaungyue.secondhand.controller;
 
-import cn.dev33.satoken.annotation.SaCheckLogin;
+import cn.dev33.satoken.annotation.SaCheckPermission;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
@@ -51,7 +51,7 @@ public class EvaluateController {
      * @return 评价信息
      */
     @PostMapping
-    @SaCheckLogin(type = "user")
+    @SaCheckPermission(value = "user:evaluate:*", type = "user")
     @Operation(summary = "提交评价", description = "对订单进行评价（买家评卖家/卖家评买家）")
     public ApiResponse<EvaluateVO> submitEvaluate(@RequestBody @Valid EvaluateCreateRequest request) {
         User currentUser = SaTokenUtil.getCurrentUser();
@@ -167,7 +167,7 @@ public class EvaluateController {
      * @return 评价列表
      */
     @GetMapping("/my")
-    @SaCheckLogin(type = "user")
+    @SaCheckPermission(value = "user:evaluate:*", type = "user")
     @Operation(summary = "获取我的评价", description = "获取我发布的评价列表")
     public ApiResponse<IPage<EvaluateVO>> getMyEvaluates(
             @Parameter(description = "页码", example = "1") @RequestParam(name = "page", defaultValue = "1") Integer page,
@@ -201,7 +201,7 @@ public class EvaluateController {
      * @return 待评价订单列表
      */
     @GetMapping("/pending")
-    @SaCheckLogin(type = "user")
+    @SaCheckPermission(value = "user:evaluate:*", type = "user")
     @Operation(summary = "获取待评价订单", description = "获取当前用户待评价的订单列表")
     public ApiResponse<List<PendingEvaluateOrderVO>> getPendingOrders() {
         User currentUser = SaTokenUtil.getCurrentUser();

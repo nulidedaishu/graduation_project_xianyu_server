@@ -11,10 +11,15 @@ import xyz.yaungyue.secondhand.constant.UserStatus;
 import xyz.yaungyue.secondhand.exception.BusinessException;
 import xyz.yaungyue.secondhand.mapper.UserMapper;
 import xyz.yaungyue.secondhand.model.dto.request.UserQueryRequest;
+import xyz.yaungyue.secondhand.model.dto.response.MessagePushEvent;
 import xyz.yaungyue.secondhand.model.dto.response.PageResponse;
+import xyz.yaungyue.secondhand.model.entity.Notice;
 import xyz.yaungyue.secondhand.model.entity.User;
+import xyz.yaungyue.secondhand.service.MessagePushService;
+import xyz.yaungyue.secondhand.service.NoticeService;
 import xyz.yaungyue.secondhand.service.UserManageService;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 /**
@@ -26,6 +31,8 @@ import java.util.List;
 public class UserManageServiceImpl implements UserManageService {
 
     private final UserMapper userMapper;
+    private final NoticeService noticeService;
+    private final MessagePushService messagePushService;
 
     /**
      * 获取用户列表（分页）
@@ -107,6 +114,15 @@ public class UserManageServiceImpl implements UserManageService {
 
         if (rows > 0) {
             log.info("用户状态更新成功，用户ID: {}, 新状态: {}", userId, status);
+
+            // 发送账号状态变更通知
+            boolean isEnabled = (status == UserStatus.ENABLED);
+            String title = isEnabled ? "账号已恢复使用" : "账号已被禁用";
+            String content = isEnabled
+                    ? "您的账号已恢复正常使用，欢迎继续使用平台服务。"
+                    : "您的账号已被管理员禁用，暂时无法使用平台功能。如有疑问，请联系客服。";
+            sendNotification(userId, title, content, 3);
+
             return true;
         }
 
@@ -124,5 +140,35 @@ public class UserManageServiceImpl implements UserManageService {
         // 隐藏敏感信息
         users.forEach(user -> user.setPassword(null));
         return users;
+    }
+
+    /**
+     * 发送系统通知（保存到数据库 + 推送给在线用户）
+     *
+     * @param userId  接收通知的用户ID
+     * @param title   通知标题
+     * @param content 通知内容
+     * @param type    通知类型（1-审核通知, 2-订单通知, 3-系统公告）
+     */
+    private void sendNotification(Long userId, String title, String content, Integer type) {
+        Notice notice = new Notice();
+        notice.setUserId(userId);
+        notice.setTitle(title);
+        notice.setContent(content);
+        notice.setType(type);
+        notice.setIsRead(0);
+        notice.setCreateTime(LocalDateTime.now());
+
+        noticeService.save(notice);
+
+        try {
+            if (messagePushService.isOnline(userId)) {
+                MessagePushEvent event = MessagePushEvent.noticeEvent(notice,
+                        messagePushService.nextSequence(), userId);
+                messagePushService.pushToUser(userId, event);
+            }
+        } catch (Exception e) {
+            log.warn("实时推送通知失败，用户ID: {}, 错误: {}", userId, e.getMessage());
+        }
     }
 }

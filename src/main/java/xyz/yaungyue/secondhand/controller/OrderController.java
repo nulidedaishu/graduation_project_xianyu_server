@@ -1,6 +1,6 @@
 package xyz.yaungyue.secondhand.controller;
 
-import cn.dev33.satoken.annotation.SaCheckLogin;
+import cn.dev33.satoken.annotation.SaCheckPermission;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
@@ -35,7 +35,7 @@ public class OrderController {
      * @return 订单信息
      */
     @PostMapping
-    @SaCheckLogin
+    @SaCheckPermission(value = "user:order:*", type = "user")
     @Operation(summary = "创建订单")
     public ApiResponse<OrderVO> createOrder(@RequestBody @Valid OrderCreateRequest request) {
         User currentUser = SaTokenUtil.getCurrentUser();
@@ -49,7 +49,7 @@ public class OrderController {
      * @return 订单列表
      */
     @GetMapping
-    @SaCheckLogin
+    @SaCheckPermission(value = "user:order:*", type = "user")
     @Operation(summary = "获取我的订单列表")
     public ApiResponse<List<OrderVO>> getMyOrders(
             @RequestParam(required = false) Integer status) {
@@ -64,7 +64,7 @@ public class OrderController {
      * @return 订单列表
      */
     @GetMapping("/sold")
-    @SaCheckLogin
+    @SaCheckPermission(value = "user:order:*", type = "user")
     @Operation(summary = "获取我卖出的订单列表")
     public ApiResponse<List<OrderVO>> getSoldOrders(
             @RequestParam(required = false) Integer status) {
@@ -79,7 +79,7 @@ public class OrderController {
      * @return 订单详情
      */
     @GetMapping("/{id}")
-    @SaCheckLogin
+    @SaCheckPermission(value = "user:order:*", type = "user")
     @Operation(summary = "获取订单详情")
     public ApiResponse<OrderVO> getOrderDetail(@PathVariable Long id) {
         User currentUser = SaTokenUtil.getCurrentUser();
@@ -93,7 +93,7 @@ public class OrderController {
      * @return 操作结果
      */
     @PostMapping("/{id}/cancel")
-    @SaCheckLogin
+    @SaCheckPermission(value = "user:order:*", type = "user")
     @Operation(summary = "取消订单")
     public ApiResponse<Void> cancelOrder(@PathVariable Long id) {
         User currentUser = SaTokenUtil.getCurrentUser();
@@ -107,7 +107,7 @@ public class OrderController {
      * @return 操作结果
      */
     @PostMapping("/{id}/ship")
-    @SaCheckLogin
+    @SaCheckPermission(value = "user:order:*", type = "user")
     @Operation(summary = "卖家发货")
     public ApiResponse<Void> shipOrder(@PathVariable Long id) {
         User currentUser = SaTokenUtil.getCurrentUser();
@@ -121,7 +121,7 @@ public class OrderController {
      * @return 操作结果
      */
     @PostMapping("/{id}/receive")
-    @SaCheckLogin
+    @SaCheckPermission(value = "user:order:*", type = "user")
     @Operation(summary = "确认收货")
     public ApiResponse<Void> confirmReceive(@PathVariable Long id) {
         User currentUser = SaTokenUtil.getCurrentUser();

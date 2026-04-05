@@ -197,6 +197,7 @@
                 <version>${spring-boot.version}</version>
                 <configuration>
                     <mainClass>xyz.yaungyue.secondhand.SecondhandPlatformServerApplication</mainClass>
+                    <jvmArguments>-Xms256m -Xmx768m -XX:MaxMetaspaceSize=128m -XX:+UseG1GC</jvmArguments>
                 </configuration>
                 <executions>
                     <execution>

@@ -1,7 +1,6 @@
 package xyz.yaungyue.secondhand.controller;
 
-import cn.dev33.satoken.annotation.SaCheckLogin;
-import cn.dev33.satoken.annotation.SaCheckRole;
+import cn.dev33.satoken.annotation.SaCheckPermission;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -39,7 +38,7 @@ public class CategoryController {
      * @return 创建的分类信息
      */
     @PostMapping
-    @SaCheckRole("admin")
+    @SaCheckPermission(value = "admin:category:create", type = "admin")
     @Operation(summary = "创建分类", description = "创建新的商品分类，需要管理员权限")
     public ApiResponse<CategoryVO> createCategory(@RequestBody @Valid CategoryCreateRequest request) {
         log.info("收到创建分类请求，分类名称: {}", request.name());
@@ -62,7 +61,7 @@ public class CategoryController {
      * @return 更新后的分类信息
      */
     @PutMapping
-    @SaCheckRole("admin")
+    @SaCheckPermission(value = "admin:category:update", type = "admin")
     @Operation(summary = "更新分类", description = "更新商品分类信息，需要管理员权限")
     public ApiResponse<CategoryVO> updateCategory(@RequestBody @Valid CategoryUpdateRequest request) {
         log.info("收到更新分类请求，分类ID: {}", request.id());
@@ -86,7 +85,7 @@ public class CategoryController {
      * @return 操作结果
      */
     @DeleteMapping("/{id}")
-    @SaCheckRole("admin")
+    @SaCheckPermission(value = "admin:category:delete", type = "admin")
     @Operation(summary = "删除分类", description = "删除商品分类，需要管理员权限")
     public ApiResponse<Void> deleteCategory(
             @Parameter(description = "分类ID", example = "1") @PathVariable Long id) {
@@ -104,7 +103,7 @@ public class CategoryController {
      * @return 分类详情
      */
     @GetMapping("/{id}")
-    @SaCheckLogin
+    @SaCheckPermission(value = "user:category:detail", type = "user")
     @Operation(summary = "获取分类详情", description = "根据分类ID获取分类详细信息")
     public ApiResponse<CategoryVO> getCategoryById(
             @Parameter(description = "分类ID", example = "1") @PathVariable Long id) {
@@ -126,7 +125,7 @@ public class CategoryController {
      * @return 分类列表
      */
     @GetMapping
-    @SaCheckLogin
+    @SaCheckPermission(value = "user:category:list", type = "user")
     @Operation(summary = "获取所有分类", description = "获取所有商品分类列表（平铺结构）")
     public ApiResponse<List<CategoryVO>> getAllCategories() {
         log.info("收到获取所有分类请求");
@@ -161,7 +160,7 @@ public class CategoryController {
      * @return 子分类列表
      */
     @GetMapping("/{parentId}/children")
-    @SaCheckLogin
+    @SaCheckPermission(value = "user:category:children", type = "user")
     @Operation(summary = "获取子分类", description = "获取指定父分类下的子分类列表")
     public ApiResponse<List<CategoryVO>> getChildrenByParentId(
             @Parameter(description = "父分类ID", example = "0") @PathVariable Long parentId) {
@@ -184,7 +183,7 @@ public class CategoryController {
      * @return true-可用，false-不可用
      */
     @GetMapping("/check-name")
-    @SaCheckLogin
+    @SaCheckPermission(value = "user:category:check", type = "user")
     @Operation(summary = "检查分类名称", description = "检查分类名称在同级别下是否可用")
     public ApiResponse<Boolean> checkCategoryName(
             @Parameter(description = "父分类ID") @RequestParam(required = false) Long parentId,

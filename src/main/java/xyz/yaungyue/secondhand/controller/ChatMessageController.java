@@ -1,6 +1,6 @@
 package xyz.yaungyue.secondhand.controller;
 
-import cn.dev33.satoken.annotation.SaCheckLogin;
+import cn.dev33.satoken.annotation.SaCheckPermission;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
@@ -63,7 +63,7 @@ public class ChatMessageController {
      * @return 消息信息
      */
     @PostMapping("/messages")
-    @SaCheckLogin(type = "user")
+    @SaCheckPermission(value = "user:chat:*", type = "user")
     @Operation(summary = "发送消息", description = "发送聊天消息给指定用户")
     public ApiResponse<ChatMessageVO> sendMessage(@RequestBody @Valid ChatMessageRequest request) {
         User currentUser = SaTokenUtil.getCurrentUser();
@@ -117,7 +117,7 @@ public class ChatMessageController {
      * @return 聊天记录
      */
     @GetMapping("/messages/{userId}")
-    @SaCheckLogin(type = "user")
+    @SaCheckPermission(value = "user:chat:*", type = "user")
     @Operation(summary = "获取聊天记录", description = "获取与指定用户的聊天记录")
     public ApiResponse<IPage<ChatMessageVO>> getChatMessages(
             @Parameter(description = "对方用户ID", example = "2") @PathVariable Long userId,
@@ -155,7 +155,7 @@ public class ChatMessageController {
      * @return 会话列表
      */
     @GetMapping("/sessions")
-    @SaCheckLogin(type = "user")
+    @SaCheckPermission(value = "user:chat:*", type = "user")
     @Operation(summary = "获取会话列表", description = "获取当前用户的会话列表")
     public ApiResponse<List<ChatSessionVO>> getSessions() {
         User currentUser = SaTokenUtil.getCurrentUser();
@@ -201,7 +201,7 @@ public class ChatMessageController {
      * @return 操作结果
      */
     @PutMapping("/messages/{id}/read")
-    @SaCheckLogin(type = "user")
+    @SaCheckPermission(value = "user:chat:*", type = "user")
     @Operation(summary = "标记已读", description = "标记单条消息为已读状态")
     public ApiResponse<Void> markAsRead(
             @Parameter(description = "消息ID", example = "1") @PathVariable Long id) {
@@ -231,7 +231,7 @@ public class ChatMessageController {
      * @return 操作结果
      */
     @PutMapping("/sessions/{userId}/read")
-    @SaCheckLogin(type = "user")
+    @SaCheckPermission(value = "user:chat:*", type = "user")
     @Operation(summary = "标记会话已读", description = "标记与指定用户的会话所有消息为已读")
     public ApiResponse<Void> markSessionAsRead(
             @Parameter(description = "对方用户ID", example = "2") @PathVariable Long userId) {
@@ -256,7 +256,7 @@ public class ChatMessageController {
      * @return 未读消息统计
      */
     @GetMapping("/unread-count")
-    @SaCheckLogin(type = "user")
+    @SaCheckPermission(value = "user:chat:*", type = "user")
     @Operation(summary = "获取未读消息数", description = "获取当前用户的未读消息总数")
     public ApiResponse<ChatUnreadCountVO> getUnreadCount() {
         User currentUser = SaTokenUtil.getCurrentUser();
@@ -286,7 +286,7 @@ public class ChatMessageController {
      * @return 总未读消息统计
      */
     @GetMapping("/messages/unread-count")
-    @SaCheckLogin(type = "user")
+    @SaCheckPermission(value = "user:chat:*", type = "user")
     @Operation(summary = "获取总未读消息数", description = "获取当前用户的聊天和通知总未读数")
     public ApiResponse<TotalUnreadCountVO> getTotalUnreadCount() {
         User currentUser = SaTokenUtil.getCurrentUser();
@@ -319,7 +319,7 @@ public class ChatMessageController {
      * @return 统一会话列表
      */
     @GetMapping("/sessions/unified")
-    @SaCheckLogin(type = "user")
+    @SaCheckPermission(value = "user:chat:*", type = "user")
     @Operation(summary = "获取统一会话列表", description = "获取包含用户聊天和系统通知的统一会话列表，系统通知置顶")
     public ApiResponse<IPage<UnifiedSessionVO>> getUnifiedSessions(
             @Parameter(description = "页码", example = "1") @RequestParam(name = "page", defaultValue = "1") Integer page,
@@ -427,7 +427,7 @@ public class ChatMessageController {
      * @return 聊天记录
      */
     @GetMapping("/messages/{userId}/cursor")
-    @SaCheckLogin(type = "user")
+    @SaCheckPermission(value = "user:chat:*", type = "user")
     @Operation(summary = "游标分页获取聊天记录", description = "使用游标分页获取聊天记录，避免深度分页性能问题")
     public ApiResponse<List<ChatMessageVO>> getChatMessagesByCursor(
             @Parameter(description = "对方用户ID", example = "2") @PathVariable Long userId,
@@ -448,8 +448,8 @@ public class ChatMessageController {
             queryWrapper.lt(ChatMessage::getId, lastId);
         }
 
-        // 按ID升序排列（老消息在前，新消息在后），这样前端可以直接显示
-        queryWrapper.orderByAsc(ChatMessage::getId)
+        // 按ID降序排列（新消息在前，老消息在后），这样首次加载显示最新消息
+        queryWrapper.orderByDesc(ChatMessage::getId)
                 .last("LIMIT " + size);
 
         List<ChatMessage> messages = chatMessageService.list(queryWrapper);
@@ -560,7 +560,7 @@ public class ChatMessageController {
      * @return 操作结果
      */
     @DeleteMapping("/sessions/{sessionKey}")
-    @SaCheckLogin(type = "user")
+    @SaCheckPermission(value = "user:chat:*", type = "user")
     @Operation(summary = "删除会话", description = "删除当前用户参与的指定会话的所有聊天消息")
     public ApiResponse<Void> deleteSession(
             @Parameter(description = "会话标识", example = "1_2") @PathVariable String sessionKey) {

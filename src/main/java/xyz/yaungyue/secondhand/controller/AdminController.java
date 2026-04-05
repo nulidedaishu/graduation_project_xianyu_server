@@ -1,6 +1,6 @@
 package xyz.yaungyue.secondhand.controller;
 
-import cn.dev33.satoken.annotation.SaCheckRole;
+import cn.dev33.satoken.annotation.SaCheckPermission;
 import cn.dev33.satoken.stp.StpUtil;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -35,7 +35,6 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/admin")
 @RequiredArgsConstructor
-@SaCheckRole(value = "admin", type = "admin")
 @Tag(name = "后台管理", description = "管理员使用的用户管理、商品管理等接口")
 public class AdminController {
 
@@ -48,6 +47,7 @@ public class AdminController {
      * 获取用户列表（分页）
      */
     @GetMapping("/users")
+    @SaCheckPermission(value = "admin:user:list", type = "admin")
     @Operation(summary = "获取用户列表", description = "分页查询用户列表，支持按关键字搜索和状态筛选")
     public ApiResponse<PageResponse<User>> getUserList(UserQueryRequest request) {
         log.info("管理员查询用户列表，操作人: {}", StpUtil.getLoginId());
@@ -59,6 +59,7 @@ public class AdminController {
      * 获取用户详情
      */
     @GetMapping("/users/{userId}")
+    @SaCheckPermission(value = "admin:user:detail", type = "admin")
     @Operation(summary = "获取用户详情", description = "根据用户ID获取用户详细信息")
     public ApiResponse<User> getUserDetail(
             @Parameter(description = "用户ID", example = "1") @PathVariable Long userId) {
@@ -71,6 +72,7 @@ public class AdminController {
      * 启用用户
      */
     @PostMapping("/users/{userId}/enable")
+    @SaCheckPermission(value = "admin:user:enable", type = "admin")
     @Operation(summary = "启用用户", description = "启用被禁用的用户账号")
     public ApiResponse<Void> enableUser(
             @Parameter(description = "用户ID", example = "1") @PathVariable Long userId) {
@@ -86,6 +88,7 @@ public class AdminController {
      * 禁用用户
      */
     @PostMapping("/users/{userId}/disable")
+    @SaCheckPermission(value = "admin:user:disable", type = "admin")
     @Operation(summary = "禁用用户", description = "禁用用户账号，禁用后用户将无法登录")
     public ApiResponse<Void> disableUser(
             @Parameter(description = "用户ID", example = "1") @PathVariable Long userId) {
@@ -101,6 +104,7 @@ public class AdminController {
      * 更新用户状态（通用接口）
      */
     @PutMapping("/users/{userId}/status")
+    @SaCheckPermission(value = "admin:user:status", type = "admin")
     @Operation(summary = "更新用户状态", description = "更新用户状态（0-禁用，1-正常）")
     public ApiResponse<Void> updateUserStatus(
             @Parameter(description = "用户ID", example = "1") @PathVariable Long userId,
@@ -118,6 +122,7 @@ public class AdminController {
      * 获取所有用户（不分页，用于导出等场景）
      */
     @GetMapping("/users/all")
+    @SaCheckPermission(value = "admin:user:all", type = "admin")
     @Operation(summary = "获取所有用户", description = "获取所有用户列表，不分页")
     public ApiResponse<List<User>> getAllUsers() {
         log.info("管理员查询所有用户，操作人: {}", StpUtil.getLoginId());
@@ -131,6 +136,7 @@ public class AdminController {
      * 获取商品列表（管理员视角，包含所有状态）
      */
     @GetMapping("/products")
+    @SaCheckPermission(value = "admin:product:list", type = "admin")
     @Operation(summary = "获取商品列表", description = "管理员获取所有商品列表，支持按状态筛选和搜索")
     public ApiResponse<PageResponse<ProductListVO>> getProductList(
             @Parameter(description = "页码", example = "1") @RequestParam(defaultValue = "1") Integer page,
@@ -155,6 +161,7 @@ public class AdminController {
      * 获取待审核商品列表
      */
     @GetMapping("/products/pending")
+    @SaCheckPermission(value = "admin:product:pending", type = "admin")
     @Operation(summary = "获取待审核商品", description = "获取待审核的商品列表")
     public ApiResponse<PageResponse<ProductVO>> getPendingProducts(
             @Parameter(description = "页码", example = "1") @RequestParam(defaultValue = "1") Integer page,
@@ -174,6 +181,7 @@ public class AdminController {
      * 审核商品
      */
     @PostMapping("/products/{productId}/review")
+    @SaCheckPermission(value = "admin:product:audit", type = "admin")
     @Operation(summary = "审核商品", description = "审核商品（通过或驳回）")
     public ApiResponse<ProductVO> reviewProduct(
             @Parameter(description = "商品ID", example = "1") @PathVariable Long productId,
@@ -190,6 +198,7 @@ public class AdminController {
      * 强制下架商品
      */
     @PostMapping("/products/{productId}/force-offline")
+    @SaCheckPermission(value = "admin:product:force-offline", type = "admin")
     @Operation(summary = "强制下架商品", description = "管理员强制下架已上架的商品")
     public ApiResponse<ProductVO> forceOfflineProduct(
             @Parameter(description = "商品ID", example = "1") @PathVariable Long productId) {
@@ -204,6 +213,7 @@ public class AdminController {
      * 获取商品详情（管理员视角）
      */
     @GetMapping("/products/{productId}")
+    @SaCheckPermission(value = "admin:product:detail", type = "admin")
     @Operation(summary = "获取商品详情", description = "管理员获取商品详细信息")
     public ApiResponse<ProductVO> getProductDetail(
             @Parameter(description = "商品ID", example = "1") @PathVariable Long productId) {
@@ -219,6 +229,7 @@ public class AdminController {
      * 获取后台首页统计数据
      */
     @GetMapping("/dashboard/statistics")
+    @SaCheckPermission(value = "admin:dashboard:statistics", type = "admin")
     @Operation(summary = "获取统计数据", description = "获取后台首页的统计数据")
     public ApiResponse<DashboardStatisticsVO> getDashboardStatistics() {
         log.info("管理员查询统计数据，操作人: {}", StpUtil.getLoginId());

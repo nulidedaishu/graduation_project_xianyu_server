@@ -1,6 +1,6 @@
 package xyz.yaungyue.secondhand.controller;
 
-import cn.dev33.satoken.annotation.SaCheckLogin;
+import cn.dev33.satoken.annotation.SaCheckPermission;
 import cn.dev33.satoken.stp.StpUtil;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -39,7 +39,7 @@ public class CartController {
      * @return 商品总数量
      */
     @GetMapping("/count")
-    @SaCheckLogin
+    @SaCheckPermission(value = "user:cart:*", type = "user")
     @Operation(summary = "获取购物车商品总数量")
     public ApiResponse<Integer> getCartCount() {
         User currentUser = SaTokenUtil.getCurrentUser();
@@ -52,7 +52,7 @@ public class CartController {
      * @return 购物车信息
      */
     @PostMapping
-    @SaCheckLogin
+    @SaCheckPermission(value = "user:cart:*", type = "user")
     @Operation(summary = "添加商品到购物车")
     public ApiResponse<CartVO> addToCart(@RequestBody @Valid CartAddRequest request) {
         User currentUser = SaTokenUtil.getCurrentUser();
@@ -65,7 +65,7 @@ public class CartController {
      * @return 购物车列表
      */
     @GetMapping
-    @SaCheckLogin
+    @SaCheckPermission(value = "user:cart:*", type = "user")
     @Operation(summary = "获取购物车列表")
     public ApiResponse<List<CartVO>> getCartList() {
         User currentUser = SaTokenUtil.getCurrentUser();
@@ -80,7 +80,7 @@ public class CartController {
      * @return 操作结果
      */
     @PutMapping("/{id}")
-    @SaCheckLogin
+    @SaCheckPermission(value = "user:cart:*", type = "user")
     @Operation(summary = "修改购物车商品数量")
     public ApiResponse<Void> updateQuantity(
             @PathVariable Long id,
@@ -96,7 +96,7 @@ public class CartController {
      * @return 操作结果
      */
     @DeleteMapping("/{id}")
-    @SaCheckLogin
+    @SaCheckPermission(value = "user:cart:*", type = "user")
     @Operation(summary = "删除购物车商品")
     public ApiResponse<Void> removeFromCart(@PathVariable Long id) {
         User currentUser = SaTokenUtil.getCurrentUser();
@@ -109,7 +109,7 @@ public class CartController {
      * @return 操作结果
      */
     @DeleteMapping
-    @SaCheckLogin
+    @SaCheckPermission(value = "user:cart:*", type = "user")
     @Operation(summary = "清空购物车")
     public ApiResponse<Void> clearCart() {
         User currentUser = SaTokenUtil.getCurrentUser();

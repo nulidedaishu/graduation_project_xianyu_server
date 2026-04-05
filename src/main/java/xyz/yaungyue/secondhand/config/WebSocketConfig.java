@@ -1,14 +1,19 @@
 package xyz.yaungyue.secondhand.config;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.messaging.converter.MappingJackson2MessageConverter;
+import org.springframework.messaging.converter.MessageConverter;
 import org.springframework.messaging.simp.config.ChannelRegistration;
 import org.springframework.messaging.simp.config.MessageBrokerRegistry;
 import org.springframework.web.socket.config.annotation.EnableWebSocketMessageBroker;
 import org.springframework.web.socket.config.annotation.StompEndpointRegistry;
 import org.springframework.web.socket.config.annotation.WebSocketMessageBrokerConfigurer;
 import xyz.yaungyue.secondhand.interceptor.WebSocketAuthInterceptor;
+
+import java.util.List;
 
 /**
  * WebSocket 配置类
@@ -24,6 +29,7 @@ import xyz.yaungyue.secondhand.interceptor.WebSocketAuthInterceptor;
 public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
 
     private final WebSocketAuthInterceptor webSocketAuthInterceptor;
+    private final ObjectMapper objectMapper;
 
     /**
      * 配置消息代理
@@ -70,5 +76,17 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
     @Override
     public void configureClientInboundChannel(ChannelRegistration registration) {
         registration.interceptors(webSocketAuthInterceptor);
+    }
+
+    /**
+     * 配置消息转换器
+     * 使用 Jackson 进行 JSON 序列化，确保 LocalDateTime 正确格式化为字符串
+     */
+    @Override
+    public boolean configureMessageConverters(List<MessageConverter> messageConverters) {
+        MappingJackson2MessageConverter converter = new MappingJackson2MessageConverter();
+        converter.setObjectMapper(objectMapper);
+        messageConverters.add(converter);
+        return false; // 不覆盖默认转换器，只是添加
     }
 }

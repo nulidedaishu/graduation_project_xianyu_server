@@ -1,6 +1,6 @@
 package xyz.yaungyue.secondhand.controller;
 
-import cn.dev33.satoken.annotation.SaCheckLogin;
+import cn.dev33.satoken.annotation.SaCheckPermission;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
@@ -48,7 +48,7 @@ public class FavoriteController {
      * @return 收藏信息
      */
     @PostMapping
-    @SaCheckLogin(type = "user")
+    @SaCheckPermission(value = "user:favorite:*", type = "user")
     @Operation(summary = "收藏商品", description = "收藏指定商品")
     public ApiResponse<FavoriteVO> addFavorite(@RequestBody @Valid FavoriteCreateRequest request) {
         User currentUser = SaTokenUtil.getCurrentUser();
@@ -87,7 +87,7 @@ public class FavoriteController {
      * @return 操作结果
      */
     @DeleteMapping("/{productId}")
-    @SaCheckLogin(type = "user")
+    @SaCheckPermission(value = "user:favorite:*", type = "user")
     @Operation(summary = "取消收藏", description = "取消收藏指定商品")
     public ApiResponse<Void> removeFavorite(
             @Parameter(description = "商品ID", example = "1") @PathVariable Long productId) {
@@ -111,7 +111,7 @@ public class FavoriteController {
      * @return 收藏列表
      */
     @GetMapping
-    @SaCheckLogin(type = "user")
+    @SaCheckPermission(value = "user:favorite:*", type = "user")
     @Operation(summary = "获取收藏列表", description = "获取当前用户的收藏列表")
     public ApiResponse<IPage<FavoriteVO>> getFavorites(
             @Parameter(description = "页码", example = "1") @RequestParam(name = "page", defaultValue = "1") Integer page,
@@ -149,7 +149,7 @@ public class FavoriteController {
      * @return 是否已收藏
      */
     @GetMapping("/check/{productId}")
-    @SaCheckLogin(type = "user")
+    @SaCheckPermission(value = "user:favorite:*", type = "user")
     @Operation(summary = "检查收藏状态", description = "检查当前用户是否已收藏指定商品")
     public ApiResponse<Boolean> checkFavorite(
             @Parameter(description = "商品ID", example = "1") @PathVariable Long productId) {

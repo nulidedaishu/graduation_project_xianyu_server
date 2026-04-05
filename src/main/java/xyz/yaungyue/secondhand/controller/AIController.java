@@ -1,6 +1,6 @@
 package xyz.yaungyue.secondhand.controller;
 
-import cn.dev33.satoken.annotation.SaCheckLogin;
+import cn.dev33.satoken.annotation.SaCheckPermission;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
@@ -28,7 +28,7 @@ public class AIController {
      * 根据商品标题生成描述
      */
     @PostMapping("/generate-description")
-    @SaCheckLogin(type = "user")
+    @SaCheckPermission(value = "user:ai:generate", type = "user")
     @Operation(summary = "生成商品描述", description = "根据商品标题使用 AI 生成商品描述文案")
     public ApiResponse<AIGenerateResponse> generateProductDescription(@RequestBody AIGenerateRequest request) {
         String description = aiService.generateProductDescription(request.getTitle());

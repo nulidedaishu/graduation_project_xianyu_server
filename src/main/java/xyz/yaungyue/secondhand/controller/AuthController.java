@@ -7,6 +7,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 import xyz.yaungyue.secondhand.exception.BusinessException;
 import xyz.yaungyue.secondhand.model.dto.request.AdminLoginRequest;
@@ -41,7 +42,8 @@ public class AuthController {
     private final MenuService menuService;
     private final JwtUtil jwtUtil;
     private final RedisTemplate<String, Object> redisTemplate;
-    
+    private final PasswordEncoder passwordEncoder;
+
     private static final String ADMIN_MENU_CACHE_PREFIX = "admin:menus:";
     private static final long CACHE_EXPIRE_HOURS = 2;
 
@@ -94,9 +96,9 @@ public class AuthController {
             if (admin.getStatus() == 0) {
                 throw new BusinessException(401, "账号已被禁用");
             }
-            // if (!passwordEncoder.matches(request.password(), admin.getPassword())) {
-            //     throw new BusinessException(401, "密码错误");
-            // }
+            if (!passwordEncoder.matches(request.password(), admin.getPassword())) {
+                throw new BusinessException(401, "密码错误");
+            }
             
             // 验证管理员登录类型（不能包含ROLE_USER角色）
             // 这里假设管理员通过Admin表的role字段来区分，而不是UserRole表

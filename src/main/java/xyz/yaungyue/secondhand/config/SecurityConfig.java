@@ -83,6 +83,9 @@ public class SecurityConfig {
                 // SSE消息推送（EventSource不支持自定义header，内部处理认证）
                 .requestMatchers("/api/messages/stream").permitAll()
 
+                // WebSocket 端点
+                .requestMatchers("/ws/**").permitAll()
+
                 // 静态资源
                 .requestMatchers("/static/**", "/favicon.ico").permitAll()
 

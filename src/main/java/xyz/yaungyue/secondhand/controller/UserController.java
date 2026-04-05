@@ -1,7 +1,6 @@
 package xyz.yaungyue.secondhand.controller;
 
-import cn.dev33.satoken.annotation.SaCheckLogin;
-import cn.dev33.satoken.annotation.SaCheckRole;
+import cn.dev33.satoken.annotation.SaCheckPermission;
 import cn.dev33.satoken.stp.StpUtil;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -34,7 +33,7 @@ public class UserController {
      * @return 用户列表
      */
     @GetMapping
-    @SaCheckLogin  // 需要登录才能访问
+    @SaCheckPermission(value = "user:user:list", type = "user")
     @Operation(summary = "获取用户列表", description = "获取所有用户列表，需要登录")
     public ApiResponse<List<User>> getUserList() {
         // TODO: 实现分页查询
@@ -49,7 +48,7 @@ public class UserController {
      * @return 用户信息
      */
     @GetMapping("/{id}")
-    @SaCheckLogin
+    @SaCheckPermission(value = "user:user:detail", type = "user")
     @Operation(summary = "获取用户详情", description = "根据用户ID获取用户详细信息")
     public ApiResponse<User> getUserById(
             @Parameter(description = "用户ID", example = "1") @PathVariable Long id) {
@@ -68,7 +67,7 @@ public class UserController {
      * @return 更新后的用户信息
      */
     @PutMapping("/{id}")
-    @SaCheckLogin
+    @SaCheckPermission(value = "user:user:update", type = "user")
     @Operation(summary = "更新用户信息", description = "更新当前登录用户的信息（只能更新自己的信息）")
     public ApiResponse<User> updateUser(
             @Parameter(description = "用户ID", example = "1") @PathVariable Long id,
@@ -99,7 +98,7 @@ public class UserController {
      * @return 操作结果
      */
     @DeleteMapping("/{id}")
-    @SaCheckRole("admin")  // 需要 admin 角色
+    @SaCheckPermission(value = "admin:user:delete", type = "admin")
     @Operation(summary = "删除用户", description = "删除指定用户，需要管理员权限")
     public ApiResponse<Void> deleteUser(
             @Parameter(description = "用户ID", example = "1") @PathVariable Long id) {
@@ -116,7 +115,7 @@ public class UserController {
      * @return 当前用户信息
      */
     @GetMapping("/me")
-    @SaCheckLogin
+    @SaCheckPermission(value = "user:user:me", type = "user")
     @Operation(summary = "获取当前登录用户信息", description = "获取当前登录用户的详细信息")
     public ApiResponse<User> getCurrentUser() {
         User currentUser = SaTokenUtil.getCurrentUser();
@@ -129,7 +128,7 @@ public class UserController {
      * @return 刷新后的用户信息
      */
     @PostMapping("/refresh-session")
-    @SaCheckLogin
+    @SaCheckPermission(value = "user:user:refresh", type = "user")
     @Operation(summary = "刷新用户会话", description = "刷新用户 session 中的信息")
     public ApiResponse<User> refreshSession() {
         Long currentUserId = SaTokenUtil.getCurrentUserId();

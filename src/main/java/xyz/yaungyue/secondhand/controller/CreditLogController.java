@@ -1,6 +1,6 @@
 package xyz.yaungyue.secondhand.controller;
 
-import cn.dev33.satoken.annotation.SaCheckLogin;
+import cn.dev33.satoken.annotation.SaCheckPermission;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
@@ -49,7 +49,7 @@ public class CreditLogController {
      * @return 积分记录列表
      */
     @GetMapping
-    @SaCheckLogin(type = "user")
+    @SaCheckPermission(value = "user:credit:*", type = "user")
     @Operation(summary = "获取积分记录", description = "获取当前用户的信用积分变动记录")
     public ApiResponse<IPage<CreditLogVO>> getCreditLogs(
             @Parameter(description = "页码", example = "1") @RequestParam(name = "page", defaultValue = "1") Integer page,
@@ -92,7 +92,7 @@ public class CreditLogController {
      * @return 积分统计信息
      */
     @GetMapping("/statistics")
-    @SaCheckLogin(type = "user")
+    @SaCheckPermission(value = "user:credit:*", type = "user")
     @Operation(summary = "获取积分统计", description = "获取当前用户的信用积分统计信息")
     public ApiResponse<CreditStatisticsVO> getStatistics() {
         User currentUser = SaTokenUtil.getCurrentUser();

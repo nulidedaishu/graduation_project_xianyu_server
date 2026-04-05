@@ -1,6 +1,6 @@
 package xyz.yaungyue.secondhand.controller;
 
-import cn.dev33.satoken.annotation.SaCheckLogin;
+import cn.dev33.satoken.annotation.SaCheckPermission;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
@@ -44,7 +44,7 @@ public class FileController {
      * @return 文件列表
      */
     @GetMapping
-    @SaCheckLogin(type = "user")
+    @SaCheckPermission(value = "user:file:*", type = "user")
     @Operation(summary = "获取文件列表", description = "获取当前用户上传的文件列表")
     public ApiResponse<IPage<FileVO>> getFiles(
             @Parameter(description = "页码", example = "1") @RequestParam(name = "page", defaultValue = "1") Integer page,
@@ -87,7 +87,7 @@ public class FileController {
      * @return 文件详情
      */
     @GetMapping("/{id}")
-    @SaCheckLogin(type = "user")
+    @SaCheckPermission(value = "user:file:*", type = "user")
     @Operation(summary = "获取文件详情", description = "获取指定文件的详细信息")
     public ApiResponse<FileVO> getFileById(
             @Parameter(description = "文件ID", example = "1") @PathVariable Long id) {
@@ -104,7 +104,7 @@ public class FileController {
      * @return 操作结果
      */
     @DeleteMapping("/{id}")
-    @SaCheckLogin(type = "user")
+    @SaCheckPermission(value = "user:file:*", type = "user")
     @Operation(summary = "删除文件", description = "删除指定的文件记录（实际OSS文件删除需额外处理）")
     public ApiResponse<Void> deleteFile(
             @Parameter(description = "文件ID", example = "1") @PathVariable Long id) {

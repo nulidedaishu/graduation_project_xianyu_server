@@ -1,7 +1,6 @@
 package xyz.yaungyue.secondhand.controller;
 
-import cn.dev33.satoken.annotation.SaCheckLogin;
-import cn.dev33.satoken.annotation.SaCheckRole;
+import cn.dev33.satoken.annotation.SaCheckPermission;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
@@ -50,7 +49,7 @@ public class NoticeController {
      * @return 通知列表
      */
     @GetMapping
-    @SaCheckLogin(type = "user")
+    @SaCheckPermission(value = "user:notice:list", type = "user")
     @Operation(summary = "获取通知列表", description = "获取当前用户的通知列表")
     public ApiResponse<IPage<NoticeVO>> getNotices(
             @Parameter(description = "页码", example = "1") @RequestParam(name = "page", defaultValue = "1") Integer page,
@@ -88,7 +87,7 @@ public class NoticeController {
      * @return 未读通知列表
      */
     @GetMapping("/unread")
-    @SaCheckLogin(type = "user")
+    @SaCheckPermission(value = "user:notice:unread", type = "user")
     @Operation(summary = "获取未读通知", description = "获取当前用户的未读通知列表")
     public ApiResponse<IPage<NoticeVO>> getUnreadNotices(
             @Parameter(description = "页码", example = "1") @RequestParam(name = "page", defaultValue = "1") Integer page,
@@ -123,7 +122,7 @@ public class NoticeController {
      * @return 通知统计信息
      */
     @GetMapping("/statistics")
-    @SaCheckLogin(type = "user")
+    @SaCheckPermission(value = "user:notice:statistics", type = "user")
     @Operation(summary = "获取通知统计", description = "获取当前用户的通知统计信息")
     public ApiResponse<NoticeStatisticsVO> getStatistics() {
         User currentUser = SaTokenUtil.getCurrentUser();
@@ -172,7 +171,7 @@ public class NoticeController {
      * @return 操作结果
      */
     @PutMapping("/{id}/read")
-    @SaCheckLogin(type = "user")
+    @SaCheckPermission(value = "user:notice:read", type = "user")
     @Operation(summary = "标记已读", description = "标记单条通知为已读状态")
     public ApiResponse<Void> markAsRead(
             @Parameter(description = "通知ID", example = "1") @PathVariable Long id) {
@@ -201,7 +200,7 @@ public class NoticeController {
      * @return 操作结果
      */
     @PutMapping("/read-all")
-    @SaCheckLogin(type = "user")
+    @SaCheckPermission(value = "user:notice:read-all", type = "user")
     @Operation(summary = "全部已读", description = "标记当前用户的所有通知为已读状态")
     public ApiResponse<Void> markAllAsRead() {
         User currentUser = SaTokenUtil.getCurrentUser();
@@ -223,7 +222,7 @@ public class NoticeController {
      * @return 操作结果
      */
     @DeleteMapping("/{id}")
-    @SaCheckLogin(type = "user")
+    @SaCheckPermission(value = "user:notice:delete", type = "user")
     @Operation(summary = "删除通知", description = "删除单条通知")
     public ApiResponse<Void> deleteNotice(
             @Parameter(description = "通知ID", example = "1") @PathVariable Long id) {
@@ -251,7 +250,7 @@ public class NoticeController {
      * @return 系统通知会话信息
      */
     @GetMapping("/session")
-    @SaCheckLogin(type = "user")
+    @SaCheckPermission(value = "user:notice:session", type = "user")
     @Operation(summary = "获取系统通知会话", description = "获取系统通知会话信息（最后一条通知、未读数）")
     public ApiResponse<NoticeSessionVO> getNoticeSession() {
         User currentUser = SaTokenUtil.getCurrentUser();
@@ -291,7 +290,7 @@ public class NoticeController {
      * @return 通知列表
      */
     @GetMapping("/messages")
-    @SaCheckLogin(type = "user")
+    @SaCheckPermission(value = "user:notice:messages", type = "user")
     @Operation(summary = "游标分页获取通知", description = "使用游标分页获取通知列表")
     public ApiResponse<List<NoticeVO>> getNoticeMessagesByCursor(
             @Parameter(description = "上一页最后一条通知ID（首次不传）", example = "100") @RequestParam(name = "lastId", required = false) Long lastId,
@@ -328,7 +327,7 @@ public class NoticeController {
      * @return 操作结果
      */
     @PutMapping("/session/read")
-    @SaCheckLogin(type = "user")
+    @SaCheckPermission(value = "user:notice:session-read", type = "user")
     @Operation(summary = "标记系统通知已读", description = "标记所有系统通知为已读")
     public ApiResponse<Void> markSessionAsRead() {
         User currentUser = SaTokenUtil.getCurrentUser();
@@ -350,7 +349,7 @@ public class NoticeController {
      * @return 发送结果
      */
     @PostMapping("/admin/send")
-    @SaCheckRole(value = "admin", type = "admin")
+    @SaCheckPermission(value = "admin:notice:send", type = "admin")
     @Operation(summary = "发送系统通知", description = "管理员发送系统通知（管理员接口）")
     public ApiResponse<NoticeVO> sendSystemNotice(@RequestBody Notice notice) {
         if (notice.getUserId() == null) {

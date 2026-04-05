@@ -17,6 +17,7 @@ import xyz.yaungyue.secondhand.model.dto.request.ProductCreateRequest;
 import xyz.yaungyue.secondhand.model.dto.request.ProductQueryRequest;
 import xyz.yaungyue.secondhand.model.dto.request.ProductReviewRequest;
 import xyz.yaungyue.secondhand.model.dto.request.ProductUpdateRequest;
+import xyz.yaungyue.secondhand.model.dto.response.MessagePushEvent;
 import xyz.yaungyue.secondhand.model.dto.response.ProductDetailVO;
 import xyz.yaungyue.secondhand.model.dto.response.ProductListVO;
 import xyz.yaungyue.secondhand.model.dto.response.ProductVO;
@@ -24,6 +25,7 @@ import xyz.yaungyue.secondhand.model.entity.Category;
 import xyz.yaungyue.secondhand.model.entity.City;
 import xyz.yaungyue.secondhand.model.entity.District;
 import xyz.yaungyue.secondhand.model.entity.File;
+import xyz.yaungyue.secondhand.model.entity.Notice;
 import xyz.yaungyue.secondhand.model.entity.Product;
 import xyz.yaungyue.secondhand.model.entity.Province;
 import xyz.yaungyue.secondhand.model.entity.User;
@@ -31,6 +33,8 @@ import xyz.yaungyue.secondhand.service.CategoryService;
 import xyz.yaungyue.secondhand.service.CityService;
 import xyz.yaungyue.secondhand.service.DistrictService;
 import xyz.yaungyue.secondhand.service.FileService;
+import xyz.yaungyue.secondhand.service.MessagePushService;
+import xyz.yaungyue.secondhand.service.NoticeService;
 import xyz.yaungyue.secondhand.service.ProductService;
 import xyz.yaungyue.secondhand.service.ProvinceService;
 import xyz.yaungyue.secondhand.service.UserService;
@@ -39,6 +43,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.data.redis.core.StringRedisTemplate;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -60,6 +65,8 @@ public class ProductServiceImpl extends ServiceImpl<ProductMapper, Product> impl
     private final CityService cityService;
     private final ProvinceService provinceService;
     private final StringRedisTemplate stringRedisTemplate;
+    private final NoticeService noticeService;
+    private final MessagePushService messagePushService;
 
     private static final String RANDOM_PRODUCTS_CACHE_KEY = "random:products:";
     private static final long RANDOM_CACHE_EXPIRE_MINUTES = 10;
@@ -145,6 +152,20 @@ public class ProductServiceImpl extends ServiceImpl<ProductMapper, Product> impl
 
         log.info("商品审核完成，商品ID: {}, 审核结果: {}, 管理员ID: {}",
                 productId, newStatus == ProductStatus.APPROVED ? "通过" : "驳回", adminId);
+
+        // 发送审核通知
+        boolean isApproved = (newStatus == ProductStatus.APPROVED);
+        String noticeTitle = isApproved ? "商品审核通过" : "商品审核未通过";
+        String noticeContent;
+        if (isApproved) {
+            noticeContent = String.format("恭喜！您的商品《%s》已通过审核，现已上架，买家可以浏览和购买您的商品了。",
+                    product.getTitle());
+        } else {
+            String reason = request.auditMsg() != null ? request.auditMsg() : "不符合平台规范";
+            noticeContent = String.format("很遗憾，您的商品《%s》未通过审核。原因：%s。请修改后重新提交。",
+                    product.getTitle(), reason);
+        }
+        sendNotification(product.getUserId(), noticeTitle, noticeContent, 1);
 
         return convertToVO(product);
     }
@@ -1035,6 +1056,12 @@ public class ProductServiceImpl extends ServiceImpl<ProductMapper, Product> impl
 
         log.info("管理员强制下架商品成功，商品ID: {}, 管理员ID: {}", productId, adminId);
 
+        // 发送强制下架通知
+        String noticeTitle = "商品已被强制下架";
+        String noticeContent = String.format("您的商品《%s》已被管理员强制下架。原因：违反平台规定。如有疑问，请联系客服。",
+                product.getTitle());
+        sendNotification(product.getUserId(), noticeTitle, noticeContent, 3);
+
         return convertToVO(product);
     }
 
@@ -1052,5 +1079,35 @@ public class ProductServiceImpl extends ServiceImpl<ProductMapper, Product> impl
             throw new BusinessException(404, "商品不存在");
         }
         return convertToVO(product);
+    }
+
+    /**
+     * 发送系统通知（保存到数据库 + 推送给在线用户）
+     *
+     * @param userId  接收通知的用户ID
+     * @param title   通知标题
+     * @param content 通知内容
+     * @param type    通知类型（1-审核通知, 2-订单通知, 3-系统公告）
+     */
+    private void sendNotification(Long userId, String title, String content, Integer type) {
+        Notice notice = new Notice();
+        notice.setUserId(userId);
+        notice.setTitle(title);
+        notice.setContent(content);
+        notice.setType(type);
+        notice.setIsRead(0);
+        notice.setCreateTime(LocalDateTime.now());
+
+        noticeService.save(notice);
+
+        try {
+            if (messagePushService.isOnline(userId)) {
+                MessagePushEvent event = MessagePushEvent.noticeEvent(notice,
+                        messagePushService.nextSequence(), userId);
+                messagePushService.pushToUser(userId, event);
+            }
+        } catch (Exception e) {
+            log.warn("实时推送通知失败，用户ID: {}, 错误: {}", userId, e.getMessage());
+        }
     }
 }

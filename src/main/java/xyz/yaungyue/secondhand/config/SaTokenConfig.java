@@ -84,15 +84,9 @@ public class SaTokenConfig implements WebMvcConfigurer {
                         permissionList = menuService.getPermissionsByAdminId(adminId);
                         log.debug("获取管理员权限列表, adminId: {}, permissions: {}", adminId, permissionList);
                     } else {
-                        // 普通用户权限
+                        // 普通用户权限：从菜单表中获取
                         Long userId = Long.valueOf(loginId.toString());
-                        // 用户可能有商品发布、购买等基础权限
-                        permissionList.add("product:publish");
-                        permissionList.add("product:buy");
-                        permissionList.add("order:create");
-                        permissionList.add("order:view");
-                        permissionList.add("message:send");
-                        permissionList.add("user:update");
+                        permissionList = menuService.getPermissionsByUserId(userId);
                         log.debug("获取用户权限列表, userId: {}, permissions: {}", userId, permissionList);
                     }
                 } catch (Exception e) {

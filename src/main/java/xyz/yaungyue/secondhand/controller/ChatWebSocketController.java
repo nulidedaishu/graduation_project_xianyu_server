@@ -45,7 +45,7 @@ public class ChatWebSocketController {
     @MessageMapping("/chat/send")
     public void sendMessage(@Payload ChatMessageRequest request, Principal principal) {
         Long senderId = Long.valueOf(principal.getName());
-        log.debug("收到聊天消息: senderId={}, receiverId={}, content={}",
+        log.info("收到聊天消息: senderId={}, receiverId={}, content={}",
                 senderId, request.getReceiverId(), request.getContent());
 
         try {
@@ -95,7 +95,7 @@ public class ChatWebSocketController {
                     response
             );
 
-            log.debug("聊天消息发送成功: messageId={}", message.getId());
+            log.info("聊天消息发送成功: messageId={}", message.getId());
         } catch (Exception e) {
             log.error("发送聊天消息失败: {}", e.getMessage(), e);
 

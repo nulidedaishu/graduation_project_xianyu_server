@@ -1,6 +1,6 @@
 package xyz.yaungyue.secondhand.controller;
 
-import cn.dev33.satoken.annotation.SaCheckLogin;
+import cn.dev33.satoken.annotation.SaCheckPermission;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
@@ -32,7 +32,7 @@ public class PaymentController {
      * @return 支付信息
      */
     @PostMapping("/create")
-    @SaCheckLogin
+    @SaCheckPermission(value = "user:payment:create", type = "user")
     @Operation(summary = "创建支付宝支付")
     public ApiResponse<PaymentVO> createPayment(@RequestParam Long orderId) {
         User currentUser = SaTokenUtil.getCurrentUser();

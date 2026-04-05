@@ -1,8 +1,6 @@
 package xyz.yaungyue.secondhand.controller;
 
-import cn.dev33.satoken.annotation.SaCheckLogin;
 import cn.dev33.satoken.annotation.SaCheckPermission;
-import cn.dev33.satoken.annotation.SaCheckRole;
 import cn.dev33.satoken.stp.StpUtil;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import io.swagger.v3.oas.annotations.Operation;
@@ -61,7 +59,7 @@ public class ProductController {
      * @return 发布的商品信息
      */
     @PostMapping
-    @SaCheckLogin(type = "user")
+    @SaCheckPermission(value = "user:product:create", type = "user")
     @Operation(summary = "发布商品", description = "用户发布新商品，需要管理员审核")
     public ApiResponse<ProductVO> createProduct(@RequestBody @Valid ProductCreateRequest request) {
         Long userId = SaTokenUtil.getCurrentUserId();
@@ -186,7 +184,7 @@ public class ProductController {
      * @return 商品列表
      */
     @GetMapping("/my")
-    @SaCheckLogin(type = "user")
+    @SaCheckPermission(value = "user:product:my", type = "user")
     @Operation(summary = "我的商品", description = "获取当前登录用户发布的商品列表，每页固定 20 条")
     public ApiResponse<IPage<ProductListVO>> getMyProducts(
             @Parameter(description = "页码", example = "1") @RequestParam(name = "page", defaultValue = "1") Integer page,
@@ -206,7 +204,7 @@ public class ProductController {
      * @return 下架后的商品信息
      */
     @PostMapping("/{id}/offline")
-    @SaCheckLogin(type = "user")
+    @SaCheckPermission(value = "user:product:offline", type = "user")
     @Operation(summary = "下架商品", description = "卖家下架已上架的商品")
     public ApiResponse<ProductVO> offlineProduct(
             @Parameter(description = "商品ID", example = "1") @PathVariable Long id) {
@@ -224,7 +222,7 @@ public class ProductController {
      * @return 重新上架后的商品信息
      */
     @PostMapping("/{id}/online")
-    @SaCheckLogin(type = "user")
+    @SaCheckPermission(value = "user:product:online", type = "user")
     @Operation(summary = "重新上架商品", description = "卖家重新提交审核（适用于已下架或被驳回的商品）")
     public ApiResponse<ProductVO> onlineProduct(
             @Parameter(description = "商品ID", example = "1") @PathVariable Long id) {
@@ -242,7 +240,7 @@ public class ProductController {
      * @return 商品列表
      */
     @GetMapping("/pending")
-    @SaCheckRole(value = "admin", type = "admin")
+    @SaCheckPermission(value = "admin:product:pending", type = "admin")
     @Operation(summary = "待审核商品", description = "管理员获取待审核的商品列表，每页固定 20 条")
     public ApiResponse<IPage<ProductVO>> getPendingProducts(
             @Parameter(description = "页码", example = "1") @RequestParam(name = "page", defaultValue = "1") Integer page,
@@ -260,7 +258,7 @@ public class ProductController {
      * @return 审核后的商品信息
      */
     @PostMapping("/{id}/review")
-    @SaCheckRole(value = "admin", type = "admin")
+    @SaCheckPermission(value = "admin:product:audit", type = "admin")
     @Operation(summary = "审核商品", description = "管理员审核商品（通过或驳回）")
     public ApiResponse<ProductVO> reviewProduct(
             @Parameter(description = "商品ID", example = "1") @PathVariable Long id,
@@ -284,7 +282,7 @@ public class ProductController {
      * @return 操作结果
      */
     @DeleteMapping("/{id}")
-    @SaCheckLogin(type = "user")
+    @SaCheckPermission(value = "user:product:delete", type = "user")
     @Operation(summary = "删除商品", description = "删除自己发布的商品（仅支持待审核、审核驳回、已下架、已售出状态的商品）")
     public ApiResponse<Void> deleteProduct(
             @Parameter(description = "商品ID", example = "1") @PathVariable Long id) {
@@ -303,7 +301,7 @@ public class ProductController {
      * @return 修改后的商品信息
      */
     @PutMapping("/{id}")
-    @SaCheckLogin(type = "user")
+    @SaCheckPermission(value = "user:product:update", type = "user")
     @Operation(summary = "修改商品", description = "修改自己发布的商品信息（仅支持待审核、审核驳回、已下架状态的商品）")
     public ApiResponse<ProductVO> updateProduct(
             @Parameter(description = "商品ID", example = "1") @PathVariable Long id,
@@ -324,7 +322,7 @@ public class ProductController {
      * @return 库存检查结果
      */
     @PostMapping("/{id}/check-stock")
-    @SaCheckLogin(type = "user")
+    @SaCheckPermission(value = "user:product:check-stock", type = "user")
     @Operation(summary = "检查库存", description = "校验指定商品的库存是否满足购买需求")
     public ApiResponse<StockCheckResult> checkStock(
             @Parameter(description = "商品ID", example = "1") @PathVariable Long id,
@@ -380,7 +378,7 @@ public class ProductController {
      * @return 库存锁定结果
      */
     @PostMapping("/{id}/lock-stock")
-    @SaCheckLogin(type = "user")
+    @SaCheckPermission(value = "user:product:lock-stock", type = "user")
     @Operation(summary = "锁定库存", description = "下单时预占商品库存，防止超卖")
     public ApiResponse<StockLockResult> lockStock(
             @Parameter(description = "商品ID", example = "1") @PathVariable Long id,

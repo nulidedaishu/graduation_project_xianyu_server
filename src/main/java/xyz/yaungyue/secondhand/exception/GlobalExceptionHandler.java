@@ -9,6 +9,11 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
+import cn.dev33.satoken.exception.NotLoginException;
+import cn.dev33.satoken.exception.NotRoleException;
+import cn.dev33.satoken.exception.NotPermissionException;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.authentication.AuthenticationCredentialsNotFoundException;
 import xyz.yaungyue.secondhand.model.dto.response.ApiResponse;
 
 import java.util.stream.Collectors;
@@ -48,6 +53,61 @@ public class GlobalExceptionHandler {
     @ResponseStatus(HttpStatus.UNAUTHORIZED)    // 401
     public ApiResponse<?> handleUnauthorized(UnauthorizedException ex) {
         return ApiResponse.error(401, ex.getMessage());
+    }
+
+    /**
+     * Sa-Token 未登录异常，返回 401
+     */
+    @ExceptionHandler(NotLoginException.class)
+    @ResponseStatus(HttpStatus.UNAUTHORIZED)
+    public ApiResponse<?> handleNotLogin(NotLoginException ex) {
+        String message = "未登录或登录已过期";
+        if (ex.getType().equals(NotLoginException.NOT_TOKEN)) {
+            message = "未提供Token";
+        } else if (ex.getType().equals(NotLoginException.INVALID_TOKEN)) {
+            message = "Token无效";
+        } else if (ex.getType().equals(NotLoginException.TOKEN_TIMEOUT)) {
+            message = "Token已过期";
+        }
+        return ApiResponse.error(401, message);
+    }
+
+    /**
+     * Sa-Token 无角色异常，返回 403
+     */
+    @ExceptionHandler(NotRoleException.class)
+    @ResponseStatus(HttpStatus.FORBIDDEN)
+    public ApiResponse<?> handleNotRole(NotRoleException ex) {
+        return ApiResponse.error(403, "角色权限不足: " + ex.getRole());
+    }
+
+    /**
+     * Sa-Token 无权限异常，返回 403
+     */
+    @ExceptionHandler(NotPermissionException.class)
+    @ResponseStatus(HttpStatus.FORBIDDEN)
+    public ApiResponse<?> handleNotPermission(NotPermissionException ex) {
+        return ApiResponse.error(403, "权限不足: " + ex.getCode());
+    }
+
+    /**
+     * Spring Security 访问被拒绝异常（权限不足），返回 403
+     */
+    @ExceptionHandler(AccessDeniedException.class)
+    @ResponseStatus(HttpStatus.FORBIDDEN)
+    public ApiResponse<?> handleAccessDenied(AccessDeniedException ex) {
+        log.warn("Spring Security 访问被拒绝: {}", ex.getMessage());
+        return ApiResponse.error(403, "权限不足或未登录");
+    }
+
+    /**
+     * Spring Security 未提供认证凭据异常（未登录），返回 401
+     */
+    @ExceptionHandler(AuthenticationCredentialsNotFoundException.class)
+    @ResponseStatus(HttpStatus.UNAUTHORIZED)
+    public ApiResponse<?> handleAuthenticationCredentialsNotFound(AuthenticationCredentialsNotFoundException ex) {
+        log.warn("Spring Security 未提供认证凭据: {}", ex.getMessage());
+        return ApiResponse.error(401, "请先登录");
     }
 
     /**

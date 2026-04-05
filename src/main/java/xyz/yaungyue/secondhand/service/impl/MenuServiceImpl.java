@@ -9,10 +9,12 @@ import org.springframework.stereotype.Service;
 import xyz.yaungyue.secondhand.mapper.AdminRoleMapper;
 import xyz.yaungyue.secondhand.mapper.MenuMapper;
 import xyz.yaungyue.secondhand.mapper.RoleMenuMapper;
+import xyz.yaungyue.secondhand.mapper.UserRoleMapper;
 import xyz.yaungyue.secondhand.model.entity.Admin;
 import xyz.yaungyue.secondhand.model.entity.AdminRole;
 import xyz.yaungyue.secondhand.model.entity.Menu;
 import xyz.yaungyue.secondhand.model.entity.RoleMenu;
+import xyz.yaungyue.secondhand.model.entity.UserRole;
 import xyz.yaungyue.secondhand.service.AdminRoleService;
 import xyz.yaungyue.secondhand.service.AdminService;
 import xyz.yaungyue.secondhand.service.MenuService;
@@ -40,6 +42,7 @@ public class MenuServiceImpl extends ServiceImpl<MenuMapper, Menu>
     private final AdminRoleMapper adminRoleMapper;
     private final RoleMenuMapper roleMenuMapper;
     private final RoleService roleService;
+    private final UserRoleMapper userRoleMapper;
 
     @Override
     public List<Menu> getMenusByAdminId(Long adminId) {
@@ -160,13 +163,96 @@ public class MenuServiceImpl extends ServiceImpl<MenuMapper, Menu>
      */
     private List<String> getDefaultAdminPermissions() {
         List<String> permissions = new ArrayList<>();
-        permissions.add("product:audit");      // 商品审核
-        permissions.add("product:delete");     // 删除商品
-        permissions.add("user:manage");        // 用户管理
-        permissions.add("order:manage");       // 订单管理
-        permissions.add("category:manage");    // 分类管理
-        permissions.add("system:config");      // 系统配置
-        permissions.add("statistics:view");    // 查看统计
+        permissions.add("admin:product:audit");      // 商品审核
+        permissions.add("admin:product:delete");     // 删除商品
+        permissions.add("admin:user:manage");        // 用户管理
+        permissions.add("admin:order:manage");       // 订单管理
+        permissions.add("admin:category:manage");    // 分类管理
+        permissions.add("admin:system:config");      // 系统配置
+        permissions.add("admin:statistics:view");    // 查看统计
+        return permissions;
+    }
+
+    @Override
+    public List<String> getPermissionsByUserId(Long userId) {
+        // 1. 查询用户的角色关联
+        LambdaQueryWrapper<UserRole> userRoleWrapper = new LambdaQueryWrapper<>();
+        userRoleWrapper.eq(UserRole::getUserId, userId);
+        List<UserRole> userRoles = userRoleMapper.selectList(userRoleWrapper);
+
+        if (userRoles.isEmpty()) {
+            // 返回默认用户权限
+            return getDefaultUserPermissions();
+        }
+
+        // 2. 查询角色对应的菜单权限
+        List<Long> roleIds = userRoles.stream()
+                .map(UserRole::getRoleId)
+                .collect(Collectors.toList());
+
+        LambdaQueryWrapper<RoleMenu> roleMenuWrapper = new LambdaQueryWrapper<>();
+        roleMenuWrapper.in(RoleMenu::getRoleId, roleIds);
+        List<RoleMenu> roleMenus = roleMenuMapper.selectList(roleMenuWrapper);
+
+        if (roleMenus.isEmpty()) {
+            return getDefaultUserPermissions();
+        }
+
+        // 3. 查询菜单权限标识
+        List<Long> menuIds = roleMenus.stream()
+                .map(RoleMenu::getMenuId)
+                .distinct()
+                .collect(Collectors.toList());
+
+        List<Menu> menus = this.listByIds(menuIds);
+
+        // 4. 提取权限标识
+        List<String> permissions = menus.stream()
+                .map(Menu::getPermission)
+                .filter(permission -> permission != null && !permission.isEmpty())
+                .distinct()
+                .collect(Collectors.toList());
+
+        // 如果没有权限，添加默认权限
+        if (permissions.isEmpty()) {
+            permissions = getDefaultUserPermissions();
+        }
+
+        return permissions;
+    }
+
+    /**
+     * 获取默认用户权限
+     */
+    private List<String> getDefaultUserPermissions() {
+        List<String> permissions = new ArrayList<>();
+        // 用户基础权限
+        permissions.add("user:product:create");
+        permissions.add("user:product:my");
+        permissions.add("user:product:offline");
+        permissions.add("user:product:online");
+        permissions.add("user:product:delete");
+        permissions.add("user:product:update");
+        permissions.add("user:product:check-stock");
+        permissions.add("user:product:lock-stock");
+        permissions.add("user:cart:*");
+        permissions.add("user:order:*");
+        permissions.add("user:payment:create");
+        permissions.add("user:address:*");
+        permissions.add("user:favorite:*");
+        permissions.add("user:evaluate:create");
+        permissions.add("user:evaluate:my");
+        permissions.add("user:evaluate:pending");
+        permissions.add("user:file:*");
+        permissions.add("user:credit:*");
+        permissions.add("user:message:*");
+        permissions.add("user:notice:*");
+        permissions.add("user:ai:generate");
+        permissions.add("user:chat:*");
+        permissions.add("user:category:detail");
+        permissions.add("user:category:list");
+        permissions.add("user:category:children");
+        permissions.add("user:category:check");
         return permissions;
     }
 }

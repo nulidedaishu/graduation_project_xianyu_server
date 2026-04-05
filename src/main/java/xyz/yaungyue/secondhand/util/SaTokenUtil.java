@@ -4,6 +4,8 @@ import cn.dev33.satoken.stp.StpUtil;
 import xyz.yaungyue.secondhand.model.entity.User;
 import xyz.yaungyue.secondhand.model.entity.Admin;
 
+import java.util.List;
+
 /**
  * Sa-Token 工具类
  */
@@ -107,11 +109,54 @@ public class SaTokenUtil {
      */
     public static void logout(boolean isAdmin) {
         String loginType = isAdmin ? ADMIN_TYPE : USER_TYPE;
-        // 根据登录类型登出指定会话
-        // 注意：Sa-Token的logoutByLoginType方法可能需要特定版本支持
-        // 如果不可用，可以通过其他方式实现类型区分
-        StpUtil.logout();
-        // TODO: 实现真正的按类型登出逻辑
+        String currentType = StpUtil.getLoginType();
+
+        // 只有当前登录类型匹配时才执行登出
+        if (loginType.equals(currentType)) {
+            StpUtil.logout();
+        }
+    }
+
+    /**
+     * 获取当前登录类型
+     * @return 登录类型（"user" 或 "admin"）
+     */
+    public static String getCurrentLoginType() {
+        return StpUtil.getLoginType();
+    }
+
+    /**
+     * 检查当前用户是否具有指定角色
+     * @param role 角色标识
+     * @return 是否具有该角色
+     */
+    public static boolean hasRole(String role) {
+        return StpUtil.hasRole(role);
+    }
+
+    /**
+     * 检查当前用户是否具有指定权限
+     * @param permission 权限标识
+     * @return 是否具有该权限
+     */
+    public static boolean hasPermission(String permission) {
+        return StpUtil.hasPermission(permission);
+    }
+
+    /**
+     * 获取当前用户的角色列表
+     * @return 角色列表
+     */
+    public static List<String> getRoleList() {
+        return StpUtil.getRoleList();
+    }
+
+    /**
+     * 获取当前用户的权限列表
+     * @return 权限列表
+     */
+    public static List<String> getPermissionList() {
+        return StpUtil.getPermissionList();
     }
 
     /**

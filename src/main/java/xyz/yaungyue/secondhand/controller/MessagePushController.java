@@ -1,6 +1,6 @@
 package xyz.yaungyue.secondhand.controller;
 
-import cn.dev33.satoken.annotation.SaCheckLogin;
+import cn.dev33.satoken.annotation.SaCheckPermission;
 import cn.dev33.satoken.stp.StpUtil;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -106,7 +106,7 @@ public class MessagePushController {
      * 断开SSE连接
      */
     @PostMapping("/disconnect")
-    @SaCheckLogin(type = "user")
+    @SaCheckPermission(value = "user:message:disconnect", type = "user")
     @Operation(summary = "断开SSE连接", description = "手动断开SSE连接")
     public ApiResponse<Void> disconnect() {
         Long userId = StpUtil.getLoginIdAsLong();
@@ -118,7 +118,7 @@ public class MessagePushController {
      * 获取连接状态
      */
     @GetMapping("/connection-status")
-    @SaCheckLogin(type = "user")
+    @SaCheckPermission(value = "user:message:status", type = "user")
     @Operation(summary = "获取连接状态", description = "检查当前用户的SSE连接状态")
     public ApiResponse<ConnectionStatusVO> getConnectionStatus() {
         Long userId = StpUtil.getLoginIdAsLong();
@@ -135,7 +135,7 @@ public class MessagePushController {
      * 获取全局连接统计（管理员接口）
      */
     @GetMapping("/admin/connection-stats")
-    @SaCheckLogin(type = "admin")
+    @SaCheckPermission(value = "admin:connection:stats", type = "admin")
     @Operation(summary = "连接统计", description = "获取SSE连接统计信息（管理员）")
     public ApiResponse<ConnectionStatsVO> getConnectionStats() {
         ConnectionStatsVO vo = new ConnectionStatsVO();
