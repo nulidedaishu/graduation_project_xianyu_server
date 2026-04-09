@@ -8,6 +8,7 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.context.request.async.AsyncRequestNotUsableException;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 import cn.dev33.satoken.exception.NotLoginException;
 import cn.dev33.satoken.exception.NotRoleException;
@@ -187,6 +188,16 @@ public class GlobalExceptionHandler {
     public ApiResponse<?> handleRuntime(RuntimeException e) {
         log.error("系统运行时异常", e);
         return ApiResponse.error(500, "系统繁忙，请稍后重试");
+    }
+
+    /**
+     * SSE异步请求不可用异常（连接已断开），静默处理
+     */
+    @ExceptionHandler(AsyncRequestNotUsableException.class)
+    public void handleAsyncRequestNotUsable(AsyncRequestNotUsableException e) {
+        // SSE连接异常，静默处理，不返回任何内容给客户端
+        // 这是因为SSE连接的Content-Type是text/event-stream，无法返回ApiResponse
+        log.debug("SSE连接已不可用: {}", e.getMessage());
     }
 
     /**

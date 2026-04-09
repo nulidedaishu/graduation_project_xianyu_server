@@ -8,8 +8,11 @@ import xyz.yaungyue.secondhand.model.dto.response.MessagePushEvent;
 import xyz.yaungyue.secondhand.service.MessagePushService;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -26,9 +29,9 @@ import java.util.concurrent.atomic.AtomicLong;
 public class MessagePushServiceImpl implements MessagePushService {
 
     /**
-     * 用户SSE连接池：userId -> SseEmitter
+     * 用户SSE连接池：userId -> List<SseEmitter>
      */
-    private final Map<Long, SseEmitter> userEmitters = new ConcurrentHashMap<>();
+    private final Map<Long, List<SseEmitter>> userEmitters = new ConcurrentHashMap<>();
 
     /**
      * 用户连接计数器（用于限制同一用户的并发连接数）
@@ -82,7 +85,7 @@ public class MessagePushServiceImpl implements MessagePushService {
         userConnectionCount.put(userId, userConnectionCount.getOrDefault(userId, 0) + 1);
 
         // 存储连接到连接池
-        userEmitters.put(userId, emitter);
+        userEmitters.computeIfAbsent(userId, k -> new CopyOnWriteArrayList<>()).add(emitter);
 
         // 配置连接回调
         emitter.onCompletion(() -> {
@@ -118,55 +121,62 @@ public class MessagePushServiceImpl implements MessagePushService {
 
     @Override
     public void disconnect(Long userId) {
-        SseEmitter emitter = userEmitters.get(userId);
-        if (emitter != null) {
-            removeConnection(userId, emitter);
-            log.info("用户 {} SSE连接已手动断开", userId);
+        List<SseEmitter> emitters = userEmitters.get(userId);
+        if (emitters != null && !emitters.isEmpty()) {
+            // 断开该用户的所有连接
+            for (SseEmitter emitter : new ArrayList<>(emitters)) {
+                removeConnection(userId, emitter);
+            }
+            log.info("用户 {} 的所有SSE连接已手动断开", userId);
         }
     }
 
     @Override
     @Async("ssePushExecutor")
     public void pushToUser(Long userId, MessagePushEvent event) {
-        SseEmitter emitter = userEmitters.get(userId);
-        if (emitter == null) {
+        List<SseEmitter> emitters = userEmitters.get(userId);
+        if (emitters == null || emitters.isEmpty()) {
             log.debug("用户 {} 不在线，消息推送失败", userId);
             return;
         }
 
-        try {
-            emitter.send(SseEmitter.event()
-                    .id(String.valueOf(event.getSequence()))
-                    .name(event.getEventType())
-                    .data(event));
-            log.debug("消息推送成功: userId={}, eventType={}, sequence={}",
-                    userId, event.getEventType(), event.getSequence());
-        } catch (IOException e) {
-            log.error("消息推送失败: userId={}, eventType={}, error={}",
-                    userId, event.getEventType(), e.getMessage());
-            removeConnection(userId, emitter);
+        for (SseEmitter emitter : new ArrayList<>(emitters)) {
+            try {
+                emitter.send(SseEmitter.event()
+                        .id(String.valueOf(event.getSequence()))
+                        .name(event.getEventType())
+                        .data(event));
+                log.debug("消息推送成功: userId={}, eventType={}, sequence={}",
+                        userId, event.getEventType(), event.getSequence());
+            } catch (IOException e) {
+                log.error("消息推送失败: userId={}, eventType={}, error={}",
+                        userId, event.getEventType(), e.getMessage());
+                removeConnection(userId, emitter);
+            }
         }
     }
 
     @Override
     @Async("ssePushExecutor")
     public void broadcast(MessagePushEvent event) {
-        userEmitters.forEach((userId, emitter) -> {
-            try {
-                emitter.send(SseEmitter.event()
-                        .id(String.valueOf(event.getSequence()))
-                        .name(event.getEventType())
-                        .data(event));
-            } catch (IOException e) {
-                log.error("广播消息失败: userId={}, error={}", userId, e.getMessage());
-                removeConnection(userId, emitter);
+        userEmitters.forEach((userId, emitters) -> {
+            for (SseEmitter emitter : new ArrayList<>(emitters)) {
+                try {
+                    emitter.send(SseEmitter.event()
+                            .id(String.valueOf(event.getSequence()))
+                            .name(event.getEventType())
+                            .data(event));
+                } catch (IOException e) {
+                    log.error("广播消息失败: userId={}, error={}", userId, e.getMessage());
+                    removeConnection(userId, emitter);
+                }
             }
         });
     }
 
     @Override
     public int getConnectionCount() {
-        return userEmitters.size();
+        return userEmitters.values().stream().mapToInt(List::size).sum();
     }
 
     @Override
@@ -186,7 +196,13 @@ public class MessagePushServiceImpl implements MessagePushService {
      */
     private void removeConnection(Long userId, SseEmitter emitter) {
         // 从连接池移除
-        userEmitters.remove(userId, emitter);
+        List<SseEmitter> emitters = userEmitters.get(userId);
+        if (emitters != null) {
+            emitters.remove(emitter);
+            if (emitters.isEmpty()) {
+                userEmitters.remove(userId);
+            }
+        }
 
         // 更新连接计数
         Integer count = userConnectionCount.get(userId);
@@ -198,11 +214,11 @@ public class MessagePushServiceImpl implements MessagePushService {
             }
         }
 
-        // 关闭emitter
+        // 关闭emitter，完全静默处理所有异常
         try {
             emitter.complete();
-        } catch (Exception e) {
-            // 忽略关闭时的异常
+        } catch (Exception ignored) {
+            // 连接可能已关闭，忽略所有异常
         }
     }
 
@@ -210,9 +226,11 @@ public class MessagePushServiceImpl implements MessagePushService {
      * 移除最旧的连接（当超过并发限制时）
      */
     private void removeOldestConnection(Long userId) {
-        SseEmitter emitter = userEmitters.get(userId);
-        if (emitter != null) {
-            removeConnection(userId, emitter);
+        List<SseEmitter> emitters = userEmitters.get(userId);
+        if (emitters != null && !emitters.isEmpty()) {
+            // 移除列表中的第一个（最旧的）连接
+            SseEmitter oldestEmitter = emitters.get(0);
+            removeConnection(userId, oldestEmitter);
             log.info("用户 {} 最旧的SSE连接已被移除", userId);
         }
     }
@@ -224,17 +242,24 @@ public class MessagePushServiceImpl implements MessagePushService {
         heartbeatExecutor.scheduleAtFixedRate(() -> {
             try {
                 MessagePushEvent pingEvent = MessagePushEvent.pingEvent();
-                userEmitters.forEach((userId, emitter) -> {
-                    try {
-                        emitter.send(SseEmitter.event()
-                                .name("ping")
-                                .data(pingEvent));
-                    } catch (IOException e) {
-                        log.debug("心跳发送失败，移除连接: userId={}", userId);
-                        removeConnection(userId, emitter);
+                // 遍历所有用户的连接列表
+                for (Map.Entry<Long, List<SseEmitter>> entry : userEmitters.entrySet()) {
+                    Long userId = entry.getKey();
+                    List<SseEmitter> emitters = entry.getValue();
+                    // 创建副本避免并发修改问题
+                    for (SseEmitter emitter : new ArrayList<>(emitters)) {
+                        try {
+                            emitter.send(SseEmitter.event()
+                                    .name("ping")
+                                    .data(pingEvent));
+                        } catch (Exception e) {
+                            // 捕获所有异常，包括IOException和AsyncRequestNotUsableException
+                            log.debug("心跳发送失败，移除连接: userId={}, error={}", userId, e.getMessage());
+                            removeConnection(userId, emitter);
+                        }
                     }
-                });
-                log.debug("全局心跳发送完成，当前连接数: {}", userEmitters.size());
+                }
+                log.debug("全局心跳发送完成，当前连接数: {}", getConnectionCount());
             } catch (Exception e) {
                 log.error("全局心跳任务异常", e);
             }
